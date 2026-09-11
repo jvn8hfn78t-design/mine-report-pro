@@ -32,14 +32,8 @@ export function construirPdf(rep: Reporte, data: OpsData) {
       margin: { left: 40, right: 40 },
       styles: { fontSize: 8, cellPadding: 4 },
       headStyles: { fillColor: [45, 52, 66], textColor: [245, 180, 60] },
-      didDrawPage: () => {},
-      willDrawPage: () => {},
       theme: "grid",
       tableLineColor: [220, 220, 220],
-      didParseCell: () => {},
-      showHead: "firstPage",
-      // título de sección
-      pageBreak: "auto",
     });
     // @ts-expect-error lastAutoTable es añadido por el plugin
     y = (doc.lastAutoTable?.finalY ?? y) + 26;
