@@ -427,7 +427,7 @@ function NuevoReporte() {
                         ...rep.lanzamientos,
                         {
                           id: uid("lz"),
-                          robotId: robotsOperativos[0].id,
+                          robotId: robotsOperativos[0]?.id ?? "",
                           hora: new Date().toTimeString().slice(0, 5),
                           descripcion: "",
                           notas: "",
@@ -531,7 +531,7 @@ function NuevoReporte() {
                         ...rep.carguios,
                         {
                           id: uid("cg"),
-                          mixerId: mixersOperativos[0].id,
+                          mixerId: mixersOperativos[0]?.id ?? "",
                           hora: new Date().toTimeString().slice(0, 5),
                           descripcion: "",
                           notas: "",
@@ -625,7 +625,7 @@ function NuevoReporte() {
                       id: uid("fa"),
                       equipoId: robotsActivos[0]?.id ?? mixersActivos[0]?.id ?? "",
                       hora: new Date().toTimeString().slice(0, 5),
-                      tipo: TIPOS_FALLA[0],
+                      tipo: TIPOS_FALLA[0] ?? "Otra",
                       descripcion: "",
                       accion: "",
                       estadoFinal: "mantenimiento",
@@ -720,7 +720,7 @@ function NuevoReporte() {
                     ...rep.desechos,
                     {
                       id: uid("de"),
-                      tipo: TIPOS_DESECHO[0],
+                      tipo: TIPOS_DESECHO[0] ?? "Otro",
                       hora: new Date().toTimeString().slice(0, 5),
                       equipoId: robotsActivos[0]?.id ?? mixersActivos[0]?.id ?? "",
                       cantidad: 0,
@@ -771,20 +771,20 @@ function NuevoReporte() {
                 titulo: "Estado de robots",
                 paso: 1,
                 contenido: robotsActivos
-                  .map((r) => `${r.codigo}: ${ESTADO_LABEL[rep.robots[r.id].estado]}`)
+                  .map((r) => `${r.codigo}: ${ESTADO_LABEL[detRobot(r.id).estado]}`)
                   .join(" · "),
               },
               {
                 titulo: "Estado de mixers",
                 paso: 2,
-                contenido: mixersActivos.map((m) => `${m.codigo}: ${ESTADO_LABEL[rep.mixers[m.id].estado]}`).join(" · "),
+                contenido: mixersActivos.map((m) => `${m.codigo}: ${ESTADO_LABEL[detMixer(m.id).estado]}`).join(" · "),
               },
               {
                 titulo: "Combustible y aditivo",
                 paso: 3,
                 contenido: robotsActivos
                   .map((r) => {
-                    const det = rep.robots[r.id];
+                    const det = detRobot(r.id);
                     const c = [det.combustible.inicio && "I", det.combustible.media && "M", det.combustible.final && "F"]
                       .filter(Boolean)
                       .join("/");
