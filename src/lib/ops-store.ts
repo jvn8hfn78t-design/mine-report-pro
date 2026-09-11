@@ -154,7 +154,9 @@ export function useOpsData(): OpsData {
     const sync = () => setLocal({ ...getData() });
     sync();
     listeners.add(sync);
-    return () => listeners.delete(sync);
+    return () => {
+      listeners.delete(sync);
+    };
   }, []);
 
   return data;
