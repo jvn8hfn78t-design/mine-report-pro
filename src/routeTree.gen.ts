@@ -14,6 +14,8 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppCatalogosRouteImport } from './routes/app.catalogos'
 import { Route as AppHistorialRouteImport } from './routes/app.historial'
+import { Route as AppReporteIdRouteImport } from './routes/app.reporte.$id'
+import { Route as AppReporteNuevoRouteImport } from './routes/app.reporte.nuevo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +42,16 @@ const AppHistorialRoute = AppHistorialRouteImport.update({
   path: '/historial',
   getParentRoute: () => AppRoute,
 } as any)
+const AppReporteIdRoute = AppReporteIdRouteImport.update({
+  id: '/reporte/$id',
+  path: '/reporte/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReporteNuevoRoute = AppReporteNuevoRouteImport.update({
+  id: '/reporte/nuevo',
+  path: '/reporte/nuevo',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,12 +59,16 @@ export interface FileRoutesByFullPath {
   '/app/catalogos': typeof AppCatalogosRoute
   '/app/historial': typeof AppHistorialRoute
   '/app/': typeof AppIndexRoute
+  '/app/reporte/$id': typeof AppReporteIdRoute
+  '/app/reporte/nuevo': typeof AppReporteNuevoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app/catalogos': typeof AppCatalogosRoute
   '/app/historial': typeof AppHistorialRoute
   '/app': typeof AppIndexRoute
+  '/app/reporte/$id': typeof AppReporteIdRoute
+  '/app/reporte/nuevo': typeof AppReporteNuevoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,13 +77,36 @@ export interface FileRoutesById {
   '/app/catalogos': typeof AppCatalogosRoute
   '/app/historial': typeof AppHistorialRoute
   '/app/': typeof AppIndexRoute
+  '/app/reporte/$id': typeof AppReporteIdRoute
+  '/app/reporte/nuevo': typeof AppReporteNuevoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/app/catalogos' | '/app/historial' | '/app/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/catalogos'
+    | '/app/historial'
+    | '/app/'
+    | '/app/reporte/$id'
+    | '/app/reporte/nuevo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app/catalogos' | '/app/historial' | '/app'
-  id: '__root__' | '/' | '/app' | '/app/catalogos' | '/app/historial' | '/app/'
+  to:
+    | '/'
+    | '/app/catalogos'
+    | '/app/historial'
+    | '/app'
+    | '/app/reporte/$id'
+    | '/app/reporte/nuevo'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/catalogos'
+    | '/app/historial'
+    | '/app/'
+    | '/app/reporte/$id'
+    | '/app/reporte/nuevo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -112,6 +151,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHistorialRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/reporte/$id': {
+      id: '/app/reporte/$id'
+      path: '/reporte/$id'
+      fullPath: '/app/reporte/$id'
+      preLoaderRoute: typeof AppReporteIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/reporte/nuevo': {
+      id: '/app/reporte/nuevo'
+      path: '/reporte/nuevo'
+      fullPath: '/app/reporte/nuevo'
+      preLoaderRoute: typeof AppReporteNuevoRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -119,12 +172,16 @@ interface AppRouteChildren {
   AppCatalogosRoute: typeof AppCatalogosRoute
   AppHistorialRoute: typeof AppHistorialRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppReporteIdRoute: typeof AppReporteIdRoute
+  AppReporteNuevoRoute: typeof AppReporteNuevoRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCatalogosRoute: AppCatalogosRoute,
   AppHistorialRoute: AppHistorialRoute,
   AppIndexRoute: AppIndexRoute,
+  AppReporteIdRoute: AppReporteIdRoute,
+  AppReporteNuevoRoute: AppReporteNuevoRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
