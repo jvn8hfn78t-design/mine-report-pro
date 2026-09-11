@@ -1,0 +1,109 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, Boxes, FilePlus2, History } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { nombreSupervisor, useOpsData } from "@/lib/ops-store";
+import { ESTADO_CLASSES, ESTADO_LABEL, type EstadoEquipo } from "@/lib/ops-types";
+
+export const Route = createFileRoute("/app/")({
+  head: () => ({
+    meta: [
+      { title: "Panel de guardia | Guardia Ops" },
+      { name: "description", content: "Resumen de la guardia: equipos, borradores en curso y reportes recientes." },
+      { property: "og:title", content: "Panel de guardia | Guardia Ops" },
+      { property: "og:description", content: "Resumen de equipos y reportes de guardia en un solo lugar." },
+    ],
+  }),
+  component: Panel,
+});
+
+function Panel() {
+  const data = useOpsData();
+  const borrador = data.reportes.find((r) => r.estado === "borrador");
+  const ultimos = data.reportes.slice(0, 5);
+  const pendientes = data.reportes.filter((r) => r.sync === "pendiente").length;
+
+  const conteo = (estado: EstadoEquipo) =>
+    data.reportes[0]
+      ? Object.values(data.reportes[0].robots).filter((r) => r.estado === estado).length +
+        Object.values(data.reportes[0].mixers).filter((m) => m.estado === estado).length
+      : 0;
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
+      <div>
+        <h1 className="text-2xl font-bold uppercase tracking-tight">Panel de guardia</h1>
+        <p className="text-sm text-muted-foreground">
+          {data.robots.length} robots · {data.mixers.length} mixers · {pendientes} reporte(s) por sincronizar
+        </p>
+      </div>
+
+      {borrador ? (
+        <div className="rounded-lg border border-primary/50 bg-primary/10 p-4">
+          <p className="text-sm font-semibold">Tiene un reporte en curso</p>
+          <p className="text-xs text-muted-foreground">
+            {borrador.fecha} · Guardia {borrador.tipoGuardia === "dia" ? "Día" : "Noche"} ·{" "}
+            {nombreSupervisor(data, borrador.supervisorId)}
+          </p>
+          <Button asChild size="sm" className="mt-3">
+            <Link to="/app/reporte/nuevo">
+              Continuar reporte <ArrowRight className="ml-1 size-4" />
+            </Link>
+          </Button>
+        </div>
+      ) : (
+        <Button asChild size="lg" className="w-full sm:w-auto">
+          <Link to="/app/reporte/nuevo">
+            <FilePlus2 className="mr-1 size-4" /> Nuevo reporte de guardia
+          </Link>
+        </Button>
+      )}
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {(["operativo", "inoperativo", "mantenimiento", "standby"] as EstadoEquipo[]).map((e) => (
+          <div key={e} className="rounded-lg border border-border bg-card p-4">
+            <p className="text-3xl font-black">{conteo(e)}</p>
+            <span className={`mt-2 inline-block rounded px-2 py-0.5 text-[11px] font-semibold ${ESTADO_CLASSES[e]}`}>
+              {ESTADO_LABEL[e]}
+            </span>
+            <p className="mt-1 text-[11px] text-muted-foreground">Último reporte</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-lg border border-border bg-card">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide">Reportes recientes</h2>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/app/historial">
+              <History className="mr-1 size-4" /> Ver historial
+            </Link>
+          </Button>
+        </div>
+        <ul className="divide-y divide-border">
+          {ultimos.length === 0 && <li className="px-4 py-6 text-sm text-muted-foreground">Aún no hay reportes.</li>}
+          {ultimos.map((r) => (
+            <li key={r.id} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{r.correlativo}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {r.fecha} · {r.tipoGuardia === "dia" ? "Día" : "Noche"} · {nombreSupervisor(data, r.supervisorId)}
+                </p>
+              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/app/reporte/$id" params={{ id: r.id }}>
+                  Abrir
+                </Link>
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <Button asChild variant="outline">
+        <Link to="/app/catalogos">
+          <Boxes className="mr-1 size-4" /> Administrar catálogos
+        </Link>
+      </Button>
+    </div>
+  );
+}

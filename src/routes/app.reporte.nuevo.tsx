@@ -1,0 +1,844 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Pencil, Plus, Trash2, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
+import {
+  getData,
+  guardarReporte,
+  nombreEquipo,
+  nombreSupervisor,
+  nuevoReporte,
+  setData,
+  uid,
+  useOpsData,
+} from "@/lib/ops-store";
+import {
+  ESTADOS,
+  ESTADO_CLASSES,
+  ESTADO_LABEL,
+  TIPOS_DESECHO,
+  TIPOS_FALLA,
+  type EstadoEquipo,
+  type Reporte,
+} from "@/lib/ops-types";
+
+export const Route = createFileRoute("/app/reporte/nuevo")({
+  head: () => ({
+    meta: [
+      { title: "Nuevo reporte de guardia | Guardia Ops" },
+      {
+        name: "description",
+        content: "Flujo guiado paso a paso para registrar la guardia: equipos, combustible, lanzamientos y fallas.",
+      },
+      { property: "og:title", content: "Nuevo reporte de guardia | Guardia Ops" },
+      { property: "og:description", content: "Registre la guardia paso a paso, incluso sin conexión." },
+    ],
+  }),
+  component: NuevoReporte,
+});
+
+const PASOS = [
+  "Datos de guardia",
+  "Estado de robots",
+  "Estado de mixers",
+  "Combustible y aditivo",
+  "Lanzamientos",
+  "Carguío de mixers",
+  "Fallas",
+  "Desechos / morteros",
+  "Observaciones",
+  "Resumen",
+];
+
+const selectClass = "h-9 w-full rounded-md border border-input bg-background px-3 text-sm";
+
+function Contadores({ estados }: { estados: EstadoEquipo[] }) {
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {ESTADOS.map((e) => (
+        <div key={e.value} className="rounded border border-border bg-background p-3 text-center">
+          <p className="text-2xl font-black">{estados.filter((x) => x === e.value).length}</p>
+          <span className={`mt-1 inline-block rounded px-2 py-0.5 text-[10px] font-semibold ${ESTADO_CLASSES[e.value]}`}>
+            {e.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function NuevoReporte() {
+  const data = useOpsData();
+  const navigate = useNavigate();
+  const [rep, setRep] = useState<Reporte | null>(null);
+  const [paso, setPaso] = useState(0);
+  const [errores, setErrores] = useState<string[]>([]);
+
+  useEffect(() => {
+    const d = getData();
+    const borrador = d.reportes.find((r) => r.estado === "borrador");
+    setRep(borrador ?? nuevoReporte(d));
+  }, []);
+
+  // Autoguardado en el dispositivo
+  useEffect(() => {
+    if (!rep) return;
+    const t = setTimeout(() => {
+      guardarReporte(rep);
+      setData((d) => ({ ...d, borradorId: rep.id }));
+    }, 400);
+    return () => clearTimeout(t);
+  }, [rep]);
+
+  const robotsActivos = useMemo(() => data.robots.filter((r) => rep?.robots[r.id]), [data.robots, rep]);
+  const mixersActivos = useMemo(() => data.mixers.filter((m) => rep?.mixers[m.id]), [data.mixers, rep]);
+
+  if (!rep) {
+    return <div className="px-4 py-10 text-sm text-muted-foreground">Cargando reporte…</div>;
+  }
+
+  const up = (patch: Partial<Reporte>) => setRep({ ...rep, ...patch });
+
+  const robotsOperativos = robotsActivos.filter((r) => rep.robots[r.id]?.estado === "operativo");
+  const mixersOperativos = mixersActivos.filter((m) => rep.mixers[m.id]?.estado === "operativo");
+
+  const validar = (): string[] => {
+    const e: string[] = [];
+    if (!rep.fecha) e.push("Falta la fecha de guardia.");
+    if (!rep.supervisorId) e.push("Debe seleccionar el supervisor de guardia.");
+    robotsActivos.forEach((r) => {
+      const det = rep.robots[r.id];
+      if (det.estado === "operativo") {
+        const c = det.combustible;
+        if (!c.inicio && !c.media && !c.final) e.push(`${r.codigo}: registre el control de combustible.`);
+        if (det.aditivo === null) e.push(`${r.codigo}: indique si usó aditivo.`);
+      }
+    });
+    if (robotsOperativos.length > 0 && rep.lanzamientos.length === 0)
+      e.push("Registre al menos un lanzamiento de robot.");
+    if (mixersOperativos.length > 0 && rep.carguios.length === 0) e.push("Registre al menos un carguío de mixer.");
+    if (!rep.observaciones.trim()) e.push("Complete las observaciones generales de guardia.");
+    return e;
+  };
+
+  const finalizar = () => {
+    const e = validar();
+    setErrores(e);
+    if (e.length > 0) {
+      toast.error("El reporte tiene información pendiente");
+      return;
+    }
+    const final: Reporte = {
+      ...rep,
+      correlativo: `RG-${rep.fecha.replaceAll("-", "")}-${rep.tipoGuardia === "dia" ? "D" : "N"}`,
+      estado: "finalizado",
+      finalizadoEn: new Date().toISOString(),
+      sync: navigator.onLine ? "sincronizado" : "pendiente",
+    };
+    guardarReporte(final);
+    setData((d) => ({ ...d, borradorId: null }));
+    toast.success("Reporte finalizado y bloqueado");
+    navigate({ to: "/app/reporte/$id", params: { id: final.id } });
+  };
+
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-5">
+      <div className="mb-5">
+        <p className="text-xs uppercase tracking-widest text-primary">
+          Paso {paso + 1} de {PASOS.length}
+        </p>
+        <h1 className="text-xl font-bold uppercase tracking-tight sm:text-2xl">{PASOS[paso]}</h1>
+        <Progress value={((paso + 1) / PASOS.length) * 100} className="mt-3" />
+        <p className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
+          <Save className="size-3" /> Guardado automático en este dispositivo
+        </p>
+      </div>
+
+      <div className="space-y-5 rounded-lg border border-border bg-card p-4">
+        {paso === 0 && (
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="space-y-1">
+              <Label>Fecha</Label>
+              <Input type="date" value={rep.fecha} onChange={(e) => up({ fecha: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Tipo de guardia</Label>
+              <select
+                className={selectClass}
+                value={rep.tipoGuardia}
+                onChange={(e) => up({ tipoGuardia: e.target.value as "dia" | "noche" })}
+              >
+                <option value="dia">Día</option>
+                <option value="noche">Noche</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label>Supervisor</Label>
+              <select
+                className={selectClass}
+                value={rep.supervisorId}
+                onChange={(e) => up({ supervisorId: e.target.value })}
+              >
+                <option value="">Seleccione…</option>
+                {data.usuarios
+                  .filter((u) => u.activo)
+                  .map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.nombre} — {u.rol}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {paso === 1 && (
+          <>
+            <Contadores estados={robotsActivos.map((r) => rep.robots[r.id].estado)} />
+            <ul className="space-y-3">
+              {robotsActivos.map((r) => (
+                <li key={r.id} className="rounded border border-border p-3">
+                  <p className="text-sm font-semibold">
+                    {r.codigo} <span className="font-normal text-muted-foreground">· {r.modelo}</span>
+                  </p>
+                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {ESTADOS.map((e) => (
+                      <button
+                        key={e.value}
+                        onClick={() =>
+                          setRep({
+                            ...rep,
+                            robots: { ...rep.robots, [r.id]: { ...rep.robots[r.id], estado: e.value } },
+                          })
+                        }
+                        className={`rounded px-2 py-2 text-xs font-semibold transition ${
+                          rep.robots[r.id].estado === e.value
+                            ? ESTADO_CLASSES[e.value]
+                            : "border border-border text-muted-foreground hover:bg-accent"
+                        }`}
+                      >
+                        {e.label}
+                      </button>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {paso === 2 && (
+          <>
+            <Contadores estados={mixersActivos.map((m) => rep.mixers[m.id].estado)} />
+            <ul className="space-y-3">
+              {mixersActivos.map((m) => (
+                <li key={m.id} className="rounded border border-border p-3">
+                  <p className="text-sm font-semibold">
+                    {m.codigo} <span className="font-normal text-muted-foreground">· {m.modelo}</span>
+                  </p>
+                  <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {ESTADOS.map((e) => (
+                      <button
+                        key={e.value}
+                        onClick={() =>
+                          setRep({ ...rep, mixers: { ...rep.mixers, [m.id]: { estado: e.value } } })
+                        }
+                        className={`rounded px-2 py-2 text-xs font-semibold transition ${
+                          rep.mixers[m.id].estado === e.value
+                            ? ESTADO_CLASSES[e.value]
+                            : "border border-border text-muted-foreground hover:bg-accent"
+                        }`}
+                      >
+                        {e.label}
+                      </button>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {paso === 3 && (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Control exclusivo de robots lanzadores: marque los momentos en que se cargó combustible e indique el
+              uso de aditivo.
+            </p>
+            <ul className="space-y-3">
+              {robotsActivos.map((r) => {
+                const det = rep.robots[r.id];
+                const setDet = (patch: Partial<typeof det>) =>
+                  setRep({ ...rep, robots: { ...rep.robots, [r.id]: { ...det, ...patch } } });
+                return (
+                  <li key={r.id} className="rounded border border-border p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold">{r.codigo}</p>
+                      <span className={`rounded px-2 py-0.5 text-[10px] font-semibold ${ESTADO_CLASSES[det.estado]}`}>
+                        {ESTADO_LABEL[det.estado]}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-4">
+                      {(["inicio", "media", "final"] as const).map((k) => (
+                        <label key={k} className="flex items-center gap-2 text-sm capitalize">
+                          <Checkbox
+                            checked={det.combustible[k]}
+                            onCheckedChange={(v) =>
+                              setDet({ combustible: { ...det.combustible, [k]: Boolean(v) } })
+                            }
+                          />
+                          {k}
+                        </label>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">Aditivo:</span>
+                      {[
+                        { v: true, l: "Sí" },
+                        { v: false, l: "No" },
+                      ].map((o) => (
+                        <button
+                          key={o.l}
+                          onClick={() => setDet({ aditivo: o.v })}
+                          className={`rounded px-3 py-1 text-xs font-semibold ${
+                            det.aditivo === o.v
+                              ? "bg-primary text-primary-foreground"
+                              : "border border-border text-muted-foreground hover:bg-accent"
+                          }`}
+                        >
+                          {o.l}
+                        </button>
+                      ))}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+
+        {paso === 4 && (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Solo robots en estado Operativo ({robotsOperativos.length} disponibles).
+            </p>
+            {robotsOperativos.length === 0 ? (
+              <p className="rounded border border-border p-4 text-sm">No hay robots operativos en esta guardia.</p>
+            ) : (
+              <>
+                {rep.lanzamientos.map((l, i) => (
+                  <div key={l.id} className="grid gap-3 rounded border border-border p-3 sm:grid-cols-2">
+                    <div className="flex items-center justify-between sm:col-span-2">
+                      <p className="text-xs font-semibold uppercase text-primary">Lanzamiento {i + 1}</p>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Eliminar lanzamiento"
+                        onClick={() => up({ lanzamientos: rep.lanzamientos.filter((x) => x.id !== l.id) })}
+                      >
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Robot</Label>
+                      <select
+                        className={selectClass}
+                        value={l.robotId}
+                        onChange={(e) =>
+                          up({
+                            lanzamientos: rep.lanzamientos.map((x) =>
+                              x.id === l.id ? { ...x, robotId: e.target.value } : x,
+                            ),
+                          })
+                        }
+                      >
+                        {robotsOperativos.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.codigo}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Hora</Label>
+                      <Input
+                        type="time"
+                        value={l.hora}
+                        onChange={(e) =>
+                          up({
+                            lanzamientos: rep.lanzamientos.map((x) =>
+                              x.id === l.id ? { ...x, hora: e.target.value } : x,
+                            ),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs">Descripción</Label>
+                      <Input
+                        value={l.descripcion}
+                        placeholder="Labor, espesor, volumen"
+                        onChange={(e) =>
+                          up({
+                            lanzamientos: rep.lanzamientos.map((x) =>
+                              x.id === l.id ? { ...x, descripcion: e.target.value } : x,
+                            ),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs">Notas</Label>
+                      <Textarea
+                        rows={2}
+                        value={l.notas}
+                        onChange={(e) =>
+                          up({
+                            lanzamientos: rep.lanzamientos.map((x) =>
+                              x.id === l.id ? { ...x, notas: e.target.value } : x,
+                            ),
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    up({
+                      lanzamientos: [
+                        ...rep.lanzamientos,
+                        {
+                          id: uid("lz"),
+                          robotId: robotsOperativos[0].id,
+                          hora: new Date().toTimeString().slice(0, 5),
+                          descripcion: "",
+                          notas: "",
+                        },
+                      ],
+                    })
+                  }
+                >
+                  <Plus className="mr-1 size-4" /> Añadir lanzamiento
+                </Button>
+              </>
+            )}
+          </>
+        )}
+
+        {paso === 5 && (
+          <>
+            <p className="text-sm text-muted-foreground">
+              Solo mixers en estado Operativo ({mixersOperativos.length} disponibles).
+            </p>
+            {mixersOperativos.length === 0 ? (
+              <p className="rounded border border-border p-4 text-sm">No hay mixers operativos en esta guardia.</p>
+            ) : (
+              <>
+                {rep.carguios.map((c, i) => (
+                  <div key={c.id} className="grid gap-3 rounded border border-border p-3 sm:grid-cols-2">
+                    <div className="flex items-center justify-between sm:col-span-2">
+                      <p className="text-xs font-semibold uppercase text-primary">Carguío {i + 1}</p>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Eliminar carguío"
+                        onClick={() => up({ carguios: rep.carguios.filter((x) => x.id !== c.id) })}
+                      >
+                        <Trash2 className="size-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Mixer</Label>
+                      <select
+                        className={selectClass}
+                        value={c.mixerId}
+                        onChange={(e) =>
+                          up({
+                            carguios: rep.carguios.map((x) => (x.id === c.id ? { ...x, mixerId: e.target.value } : x)),
+                          })
+                        }
+                      >
+                        {mixersOperativos.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.codigo}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Hora</Label>
+                      <Input
+                        type="time"
+                        value={c.hora}
+                        onChange={(e) =>
+                          up({
+                            carguios: rep.carguios.map((x) => (x.id === c.id ? { ...x, hora: e.target.value } : x)),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs">Descripción</Label>
+                      <Input
+                        value={c.descripcion}
+                        placeholder="Volumen y tipo de mezcla"
+                        onChange={(e) =>
+                          up({
+                            carguios: rep.carguios.map((x) =>
+                              x.id === c.id ? { ...x, descripcion: e.target.value } : x,
+                            ),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label className="text-xs">Notas</Label>
+                      <Textarea
+                        rows={2}
+                        value={c.notas}
+                        onChange={(e) =>
+                          up({
+                            carguios: rep.carguios.map((x) => (x.id === c.id ? { ...x, notas: e.target.value } : x)),
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                ))}
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    up({
+                      carguios: [
+                        ...rep.carguios,
+                        {
+                          id: uid("cg"),
+                          mixerId: mixersOperativos[0].id,
+                          hora: new Date().toTimeString().slice(0, 5),
+                          descripcion: "",
+                          notas: "",
+                        },
+                      ],
+                    })
+                  }
+                >
+                  <Plus className="mr-1 size-4" /> Añadir carguío
+                </Button>
+              </>
+            )}
+          </>
+        )}
+
+        {paso === 6 && (
+          <>
+            <p className="text-sm text-muted-foreground">Registre las fallas ocurridas durante la guardia.</p>
+            {rep.fallas.map((f, i) => {
+              const setF = (patch: Partial<typeof f>) =>
+                up({ fallas: rep.fallas.map((x) => (x.id === f.id ? { ...x, ...patch } : x)) });
+              return (
+                <div key={f.id} className="grid gap-3 rounded border border-border p-3 sm:grid-cols-2">
+                  <div className="flex items-center justify-between sm:col-span-2">
+                    <p className="text-xs font-semibold uppercase text-primary">Falla {i + 1}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Eliminar falla"
+                      onClick={() => up({ fallas: rep.fallas.filter((x) => x.id !== f.id) })}
+                    >
+                      <Trash2 className="size-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Equipo</Label>
+                    <select className={selectClass} value={f.equipoId} onChange={(e) => setF({ equipoId: e.target.value })}>
+                      {[...robotsActivos, ...mixersActivos].map((eq) => (
+                        <option key={eq.id} value={eq.id}>
+                          {eq.codigo}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Hora</Label>
+                    <Input type="time" value={f.hora} onChange={(e) => setF({ hora: e.target.value })} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Tipo de falla</Label>
+                    <select className={selectClass} value={f.tipo} onChange={(e) => setF({ tipo: e.target.value })}>
+                      {TIPOS_FALLA.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Estado final del equipo</Label>
+                    <select
+                      className={selectClass}
+                      value={f.estadoFinal}
+                      onChange={(e) => setF({ estadoFinal: e.target.value as EstadoEquipo })}
+                    >
+                      {ESTADOS.map((e) => (
+                        <option key={e.value} value={e.value}>
+                          {e.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1 sm:col-span-2">
+                    <Label className="text-xs">Descripción</Label>
+                    <Textarea rows={2} value={f.descripcion} onChange={(e) => setF({ descripcion: e.target.value })} />
+                  </div>
+                  <div className="space-y-1 sm:col-span-2">
+                    <Label className="text-xs">Acción tomada</Label>
+                    <Textarea rows={2} value={f.accion} onChange={(e) => setF({ accion: e.target.value })} />
+                  </div>
+                </div>
+              );
+            })}
+            <Button
+              size="sm"
+              onClick={() =>
+                up({
+                  fallas: [
+                    ...rep.fallas,
+                    {
+                      id: uid("fa"),
+                      equipoId: robotsActivos[0]?.id ?? mixersActivos[0]?.id ?? "",
+                      hora: new Date().toTimeString().slice(0, 5),
+                      tipo: TIPOS_FALLA[0],
+                      descripcion: "",
+                      accion: "",
+                      estadoFinal: "mantenimiento",
+                    },
+                  ],
+                })
+              }
+            >
+              <Plus className="mr-1 size-4" /> Añadir falla
+            </Button>
+          </>
+        )}
+
+        {paso === 7 && (
+          <>
+            <p className="text-sm text-muted-foreground">Desechos, rebote y morteros generados en la guardia.</p>
+            {rep.desechos.map((d, i) => {
+              const setD = (patch: Partial<typeof d>) =>
+                up({ desechos: rep.desechos.map((x) => (x.id === d.id ? { ...x, ...patch } : x)) });
+              return (
+                <div key={d.id} className="grid gap-3 rounded border border-border p-3 sm:grid-cols-2">
+                  <div className="flex items-center justify-between sm:col-span-2">
+                    <p className="text-xs font-semibold uppercase text-primary">Registro {i + 1}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Eliminar registro"
+                      onClick={() => up({ desechos: rep.desechos.filter((x) => x.id !== d.id) })}
+                    >
+                      <Trash2 className="size-4 text-destructive" />
+                    </Button>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Tipo</Label>
+                    <select className={selectClass} value={d.tipo} onChange={(e) => setD({ tipo: e.target.value })}>
+                      {TIPOS_DESECHO.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Hora</Label>
+                    <Input type="time" value={d.hora} onChange={(e) => setD({ hora: e.target.value })} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Equipo</Label>
+                    <select className={selectClass} value={d.equipoId} onChange={(e) => setD({ equipoId: e.target.value })}>
+                      {[...robotsActivos, ...mixersActivos].map((eq) => (
+                        <option key={eq.id} value={eq.id}>
+                          {eq.codigo}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Cantidad</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        step="0.1"
+                        value={d.cantidad}
+                        onChange={(e) => setD({ cantidad: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Unidad</Label>
+                      <select
+                        className={selectClass}
+                        value={d.unidad}
+                        onChange={(e) => setD({ unidad: e.target.value as "m3" | "kg" })}
+                      >
+                        <option value="m3">m³</option>
+                        <option value="kg">kg</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="space-y-1 sm:col-span-2">
+                    <Label className="text-xs">Descripción</Label>
+                    <Textarea rows={2} value={d.descripcion} onChange={(e) => setD({ descripcion: e.target.value })} />
+                  </div>
+                </div>
+              );
+            })}
+            <Button
+              size="sm"
+              onClick={() =>
+                up({
+                  desechos: [
+                    ...rep.desechos,
+                    {
+                      id: uid("de"),
+                      tipo: TIPOS_DESECHO[0],
+                      hora: new Date().toTimeString().slice(0, 5),
+                      equipoId: robotsActivos[0]?.id ?? mixersActivos[0]?.id ?? "",
+                      cantidad: 0,
+                      unidad: "m3",
+                      descripcion: "",
+                    },
+                  ],
+                })
+              }
+            >
+              <Plus className="mr-1 size-4" /> Añadir desecho / mortero
+            </Button>
+          </>
+        )}
+
+        {paso === 8 && (
+          <div className="space-y-1">
+            <Label>Observaciones generales de guardia</Label>
+            <Textarea
+              rows={7}
+              value={rep.observaciones}
+              placeholder="Condiciones del terreno, seguridad, coordinaciones, pendientes para la siguiente guardia…"
+              onChange={(e) => up({ observaciones: e.target.value })}
+            />
+          </div>
+        )}
+
+        {paso === 9 && (
+          <div className="space-y-4">
+            {errores.length > 0 && (
+              <div className="rounded border border-destructive/50 bg-destructive/10 p-3 text-sm">
+                <p className="font-semibold text-destructive">Corrija antes de finalizar:</p>
+                <ul className="mt-1 list-inside list-disc text-muted-foreground">
+                  {errores.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {[
+              {
+                titulo: "Datos de guardia",
+                paso: 0,
+                contenido: `${rep.fecha} · Guardia ${rep.tipoGuardia === "dia" ? "Día" : "Noche"} · ${nombreSupervisor(data, rep.supervisorId)}`,
+              },
+              {
+                titulo: "Estado de robots",
+                paso: 1,
+                contenido: robotsActivos
+                  .map((r) => `${r.codigo}: ${ESTADO_LABEL[rep.robots[r.id].estado]}`)
+                  .join(" · "),
+              },
+              {
+                titulo: "Estado de mixers",
+                paso: 2,
+                contenido: mixersActivos.map((m) => `${m.codigo}: ${ESTADO_LABEL[rep.mixers[m.id].estado]}`).join(" · "),
+              },
+              {
+                titulo: "Combustible y aditivo",
+                paso: 3,
+                contenido: robotsActivos
+                  .map((r) => {
+                    const det = rep.robots[r.id];
+                    const c = [det.combustible.inicio && "I", det.combustible.media && "M", det.combustible.final && "F"]
+                      .filter(Boolean)
+                      .join("/");
+                    return `${r.codigo}: ${c || "sin registro"} · aditivo ${det.aditivo === null ? "?" : det.aditivo ? "sí" : "no"}`;
+                  })
+                  .join(" · "),
+              },
+              {
+                titulo: "Lanzamientos",
+                paso: 4,
+                contenido:
+                  rep.lanzamientos.map((l) => `${l.hora} ${nombreEquipo(data, l.robotId)}: ${l.descripcion}`).join(" · ") ||
+                  "Sin registros",
+              },
+              {
+                titulo: "Carguío de mixers",
+                paso: 5,
+                contenido:
+                  rep.carguios.map((c) => `${c.hora} ${nombreEquipo(data, c.mixerId)}: ${c.descripcion}`).join(" · ") ||
+                  "Sin registros",
+              },
+              {
+                titulo: "Fallas",
+                paso: 6,
+                contenido:
+                  rep.fallas.map((f) => `${f.hora} ${nombreEquipo(data, f.equipoId)}: ${f.tipo}`).join(" · ") ||
+                  "Sin registros",
+              },
+              {
+                titulo: "Desechos / morteros",
+                paso: 7,
+                contenido:
+                  rep.desechos
+                    .map((d) => `${d.hora} ${d.tipo}: ${d.cantidad} ${d.unidad === "m3" ? "m³" : "kg"}`)
+                    .join(" · ") || "Sin registros",
+              },
+              { titulo: "Observaciones", paso: 8, contenido: rep.observaciones || "Sin observaciones" },
+            ].map((s) => (
+              <div key={s.titulo} className="rounded border border-border p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-semibold">{s.titulo}</p>
+                  <Button variant="ghost" size="sm" onClick={() => setPaso(s.paso)}>
+                    <Pencil className="mr-1 size-3" /> Editar
+                  </Button>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{s.contenido}</p>
+              </div>
+            ))}
+
+            <Button className="w-full" size="lg" onClick={finalizar}>
+              <CheckCircle2 className="mr-1 size-4" /> Finalizar guardia y generar PDF
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <Button variant="outline" disabled={paso === 0} onClick={() => setPaso(paso - 1)}>
+          <ArrowLeft className="mr-1 size-4" /> Anterior
+        </Button>
+        <Button disabled={paso === PASOS.length - 1} onClick={() => setPaso(paso + 1)}>
+          Siguiente <ArrowRight className="ml-1 size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
