@@ -25,7 +25,9 @@ import {
   TIPOS_DESECHO,
   TIPOS_FALLA,
   type EstadoEquipo,
+  type MixerDetalle,
   type Reporte,
+  type RobotDetalle,
 } from "@/lib/ops-types";
 
 export const Route = createFileRoute("/app/reporte/nuevo")({
@@ -105,6 +107,14 @@ function NuevoReporte() {
 
   const up = (patch: Partial<Reporte>) => setRep({ ...rep, ...patch });
 
+  const ROBOT_DETALLE_BASE: RobotDetalle = {
+    estado: "operativo",
+    combustible: { inicio: false, media: false, final: false },
+    aditivo: null,
+  };
+  const detRobot = (id: string): RobotDetalle => rep.robots[id] ?? ROBOT_DETALLE_BASE;
+  const detMixer = (id: string): MixerDetalle => rep.mixers[id] ?? { estado: "operativo" };
+
   const robotsOperativos = robotsActivos.filter((r) => rep.robots[r.id]?.estado === "operativo");
   const mixersOperativos = mixersActivos.filter((m) => rep.mixers[m.id]?.estado === "operativo");
 
@@ -113,7 +123,7 @@ function NuevoReporte() {
     if (!rep.fecha) e.push("Falta la fecha de guardia.");
     if (!rep.supervisorId) e.push("Debe seleccionar el supervisor de guardia.");
     robotsActivos.forEach((r) => {
-      const det = rep.robots[r.id];
+      const det = detRobot(r.id);
       if (det.estado === "operativo") {
         const c = det.combustible;
         if (!c.inicio && !c.media && !c.final) e.push(`${r.codigo}: registre el control de combustible.`);
@@ -200,7 +210,7 @@ function NuevoReporte() {
 
         {paso === 1 && (
           <>
-            <Contadores estados={robotsActivos.map((r) => rep.robots[r.id].estado)} />
+            <Contadores estados={robotsActivos.map((r) => detRobot(r.id).estado)} />
             <ul className="space-y-3">
               {robotsActivos.map((r) => (
                 <li key={r.id} className="rounded border border-border p-3">
@@ -214,11 +224,11 @@ function NuevoReporte() {
                         onClick={() =>
                           setRep({
                             ...rep,
-                            robots: { ...rep.robots, [r.id]: { ...rep.robots[r.id], estado: e.value } },
+                            robots: { ...rep.robots, [r.id]: { ...detRobot(r.id), estado: e.value } },
                           })
                         }
                         className={`rounded px-2 py-2 text-xs font-semibold transition ${
-                          rep.robots[r.id].estado === e.value
+                          detRobot(r.id).estado === e.value
                             ? ESTADO_CLASSES[e.value]
                             : "border border-border text-muted-foreground hover:bg-accent"
                         }`}
@@ -235,7 +245,7 @@ function NuevoReporte() {
 
         {paso === 2 && (
           <>
-            <Contadores estados={mixersActivos.map((m) => rep.mixers[m.id].estado)} />
+            <Contadores estados={mixersActivos.map((m) => detMixer(m.id).estado)} />
             <ul className="space-y-3">
               {mixersActivos.map((m) => (
                 <li key={m.id} className="rounded border border-border p-3">
@@ -247,10 +257,10 @@ function NuevoReporte() {
                       <button
                         key={e.value}
                         onClick={() =>
-                          setRep({ ...rep, mixers: { ...rep.mixers, [m.id]: { estado: e.value } } })
+                          setRep({ ...rep, mixers: { ...rep.mixers, [m.id]: { ...detMixer(m.id), estado: e.value } } })
                         }
                         className={`rounded px-2 py-2 text-xs font-semibold transition ${
-                          rep.mixers[m.id].estado === e.value
+                          detMixer(m.id).estado === e.value
                             ? ESTADO_CLASSES[e.value]
                             : "border border-border text-muted-foreground hover:bg-accent"
                         }`}
@@ -273,8 +283,8 @@ function NuevoReporte() {
             </p>
             <ul className="space-y-3">
               {robotsActivos.map((r) => {
-                const det = rep.robots[r.id];
-                const setDet = (patch: Partial<typeof det>) =>
+                const det = detRobot(r.id);
+                const setDet = (patch: Partial<RobotDetalle>) =>
                   setRep({ ...rep, robots: { ...rep.robots, [r.id]: { ...det, ...patch } } });
                 return (
                   <li key={r.id} className="rounded border border-border p-3">
@@ -417,7 +427,7 @@ function NuevoReporte() {
                         ...rep.lanzamientos,
                         {
                           id: uid("lz"),
-                          robotId: robotsOperativos[0].id,
+                          robotId: robotsOperativos[0]?.id ?? "",
                           hora: new Date().toTimeString().slice(0, 5),
                           descripcion: "",
                           notas: "",
@@ -521,7 +531,7 @@ function NuevoReporte() {
                         ...rep.carguios,
                         {
                           id: uid("cg"),
-                          mixerId: mixersOperativos[0].id,
+                          mixerId: mixersOperativos[0]?.id ?? "",
                           hora: new Date().toTimeString().slice(0, 5),
                           descripcion: "",
                           notas: "",
@@ -615,7 +625,7 @@ function NuevoReporte() {
                       id: uid("fa"),
                       equipoId: robotsActivos[0]?.id ?? mixersActivos[0]?.id ?? "",
                       hora: new Date().toTimeString().slice(0, 5),
-                      tipo: TIPOS_FALLA[0],
+                      tipo: TIPOS_FALLA[0] ?? "Otra",
                       descripcion: "",
                       accion: "",
                       estadoFinal: "mantenimiento",
@@ -710,7 +720,7 @@ function NuevoReporte() {
                     ...rep.desechos,
                     {
                       id: uid("de"),
-                      tipo: TIPOS_DESECHO[0],
+                      tipo: TIPOS_DESECHO[0] ?? "Otro",
                       hora: new Date().toTimeString().slice(0, 5),
                       equipoId: robotsActivos[0]?.id ?? mixersActivos[0]?.id ?? "",
                       cantidad: 0,
@@ -761,20 +771,20 @@ function NuevoReporte() {
                 titulo: "Estado de robots",
                 paso: 1,
                 contenido: robotsActivos
-                  .map((r) => `${r.codigo}: ${ESTADO_LABEL[rep.robots[r.id].estado]}`)
+                  .map((r) => `${r.codigo}: ${ESTADO_LABEL[detRobot(r.id).estado]}`)
                   .join(" · "),
               },
               {
                 titulo: "Estado de mixers",
                 paso: 2,
-                contenido: mixersActivos.map((m) => `${m.codigo}: ${ESTADO_LABEL[rep.mixers[m.id].estado]}`).join(" · "),
+                contenido: mixersActivos.map((m) => `${m.codigo}: ${ESTADO_LABEL[detMixer(m.id).estado]}`).join(" · "),
               },
               {
                 titulo: "Combustible y aditivo",
                 paso: 3,
                 contenido: robotsActivos
                   .map((r) => {
-                    const det = rep.robots[r.id];
+                    const det = detRobot(r.id);
                     const c = [det.combustible.inicio && "I", det.combustible.media && "M", det.combustible.final && "F"]
                       .filter(Boolean)
                       .join("/");
