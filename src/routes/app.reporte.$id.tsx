@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Download, Link2, Lock, Mail, MessageCircle } from "lucide-react";
+import { Download, Lock, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { construirPdf, descargarPdf } from "@/lib/ops-pdf";
@@ -47,16 +47,7 @@ function DetalleReporte() {
 Fecha: ${rep.fecha} (${rep.tipoGuardia === "dia" ? "Día" : "Noche"})
 Supervisor: ${nombreSupervisor(data, rep.supervisorId)}`;
 
-  const compartirEnlace = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success("Enlace copiado");
-    } catch {
-      toast.error("No se pudo copiar el enlace");
-    }
-  };
-
-const enviarPorCorreo = async () => {
+const compartirPdf = async () => {
   try {
     const doc = construirPdf(rep, getData());
 
@@ -119,25 +110,14 @@ const enviarPorCorreo = async () => {
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button onClick={() => descargarPdf(rep, getData())}>
-            <Download className="mr-1 size-4" /> Descargar PDF
-          </Button>
-          <Button variant="outline" asChild>
-            <a
-              href={`https://wa.me/?text=${encodeURIComponent(resumenTexto)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <MessageCircle className="mr-1 size-4" /> WhatsApp
-            </a>
-          </Button>
-          <Button variant="outline" onClick={enviarPorCorreo}>
-  <Mail className="mr-1 size-4" /> Correo
-          </Button>
-          <Button variant="outline" onClick={compartirEnlace}>
-            <Link2 className="mr-1 size-4" /> Copiar enlace
-          </Button>
-        </div>
+  <Button onClick={() => descargarPdf(rep, getData())}>
+    <Download className="mr-1 size-4" /> Descargar PDF
+  </Button>
+
+  <Button variant="outline" onClick={compartirPdf}>
+    <Upload className="mr-1 size-4" /> Compartir PDF
+  </Button>
+</div>
       </div>
 
       <Seccion titulo="Estado de robots">
