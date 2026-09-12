@@ -131,10 +131,9 @@ const enviarPorCorreo = async () => {
               <MessageCircle className="mr-1 size-4" /> WhatsApp
             </a>
           </Button>
-          <Button variant="outline" asChild>
-            <a href={`mailto:?subject=${encodeURIComponent(rep.correlativo)}&body=${encodeURIComponent(resumenTexto)}`}>
-              <Mail className="mr-1 size-4" /> Correo
-            </a>
+          <Button variant="outline" onClick={enviarPorCorreo}>
+  <Mail className="mr-1 size-4" /> Correo
+</Button>
           </Button>
           <Button variant="outline" onClick={compartirEnlace}>
             <Link2 className="mr-1 size-4" /> Copiar enlace
