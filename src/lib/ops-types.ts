@@ -116,10 +116,7 @@ export const TIPOS_FALLA = [
 ];
 
 export const TIPOS_DESECHO = [
-  "Mortero endurecido",
-  "Rebote de shotcrete",
-  "Purga de línea",
-  "Mezcla vencida",
-  "Lavado de tolva",
+  "Mortero",
+  "Desecho",
   "Otro",
 ];
