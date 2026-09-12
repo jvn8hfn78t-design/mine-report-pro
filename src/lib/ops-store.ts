@@ -42,11 +42,48 @@ const seedMixers: Equipo[] = [
 ];
 
 const seedUsuarios: Usuario[] = [
-  { id: "us-01", nombre: "Brayan Quispe Ticona", rol: "Supervisor de Shotcrete", turnoPreferido: "dia", activo: true },
-  { id: "us-02", nombre: "Marco Huamaní Flores", rol: "Supervisor de Guardia", turnoPreferido: "noche", activo: true },
-  { id: "us-03", nombre: "Lucía Ramos Chávez", rol: "Jefa de Operaciones Mina", turnoPreferido: "rotativo", activo: true },
-  { id: "us-04", nombre: "Iván Choque Mamani", rol: "Supervisor de Mantenimiento", turnoPreferido: "dia", activo: true },
-  { id: "us-05", nombre: "Rosa Ccahuana Puma", rol: "Supervisora de Planta", turnoPreferido: "noche", activo: true },
+  {
+    id: "us-01",
+    nombre: "David Palpan",
+    rol: "Jefe de Guardia",
+    turnoPreferido: "dia",
+    activo: true,
+  },
+  {
+    id: "us-02",
+    nombre: "Yuler Otarola",
+    rol: "Jefe de Guardia",
+    turnoPreferido: "noche",
+    activo: true,
+  },
+  {
+    id: "us-03",
+    nombre: "Eder Velásquez",
+    rol: "Jefe de Guardia",
+    turnoPreferido: "rotativo",
+    activo: true,
+  },
+  {
+    id: "us-04",
+    nombre: "Wilfredo Janampa",
+    rol: "Supervisor de Operaciones",
+    turnoPreferido: "dia",
+    activo: true,
+  },
+  {
+    id: "us-05",
+    nombre: "José Ospina",
+    rol: "Supervisor de Operaciones",
+    turnoPreferido: "noche",
+    activo: true,
+  },
+  {
+    id: "us-06",
+    nombre: "Sider Ricaldi",
+    rol: "Supervisor de Operaciones",
+    turnoPreferido: "rotativo",
+    activo: true,
+  },
 ];
 
 function seedReportes(): Reporte[] {
