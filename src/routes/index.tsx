@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, Shield, Zap, BarChart3, Download, Share2, Check } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
 export function LandingPage() {
   const navigate = useNavigate();
@@ -236,6 +236,6 @@ export function LandingPage() {
   );
 }
 
-export default function LandingRoute() {
-  return <LandingPage />;
-}
+export const Route = createFileRoute('/')({
+  component: LandingPage,
+});
