@@ -75,7 +75,7 @@ export function LandingPage() {
             <span className="text-xl font-bold">Mine Report Pro</span>
           </div>
           <button
-            onClick={() => navigate({ to: '/app' })}
+            onClick={() => navigate({ to: '/acceso' })}
             className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 rounded-lg font-semibold transition-all transform hover:scale-105"
           >
             Ingresar →
@@ -100,7 +100,7 @@ export function LandingPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <button
-              onClick={() => navigate({ to: '/app' })}
+              onClick={() => navigate({ to: '/acceso' })}
               className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 rounded-lg font-bold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2"
             >
               Iniciar Reporte <ArrowRight className="w-5 h-5" />
@@ -213,7 +213,7 @@ export function LandingPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => navigate({ to: '/app' })}
+              onClick={() => navigate({ to: '/acceso' })}
               className="px-8 py-4 bg-white text-orange-600 hover:bg-slate-100 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
             >
               Iniciar Reporte Ahora
