@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Download, Link2, Lock, Mail, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { descargarPdf } from "@/lib/ops-pdf";
+import { construirPdf, descargarPdf } from "@/lib/ops-pdf";
 import { getData, nombreEquipo, nombreSupervisor, useOpsData } from "@/lib/ops-store";
 import { ESTADO_CLASSES, ESTADO_LABEL } from "@/lib/ops-types";
 
@@ -43,7 +43,9 @@ function DetalleReporte() {
     );
   }
 
-  const resumenTexto = `Reporte de guardia ${rep.correlativo}\nFecha: ${rep.fecha} (${rep.tipoGuardia === "dia" ? "Día" : "Noche"})\nSupervisor: ${nombreSupervisor(data, rep.supervisorId)}\nLanzamientos: ${rep.lanzamientos.length} · Carguíos: ${rep.carguios.length} · Fallas: ${rep.fallas.length}`;
+  const resumenTexto = `Reporte de guardia ${rep.correlativo}
+Fecha: ${rep.fecha} (${rep.tipoGuardia === "dia" ? "Día" : "Noche"})
+Supervisor: ${nombreSupervisor(data, rep.supervisorId)}`;
 
   const compartirEnlace = async () => {
     try {
@@ -53,6 +55,45 @@ function DetalleReporte() {
       toast.error("No se pudo copiar el enlace");
     }
   };
+
+const enviarPorCorreo = async () => {
+  try {
+    const doc = construirPdf(rep, getData());
+
+    const pdfBlob = doc.output("blob");
+
+    const pdfFile = new File(
+      [pdfBlob],
+      `${rep.correlativo}.pdf`,
+      { type: "application/pdf" },
+    );
+
+    const shareData = {
+      title: rep.correlativo,
+      text: resumenTexto,
+      files: [pdfFile],
+    };
+
+    if (!navigator.share || !navigator.canShare) {
+      toast.error("Este dispositivo no permite compartir archivos PDF.");
+      return;
+    }
+
+    if (!navigator.canShare({ files: [pdfFile] })) {
+      toast.error("No se puede adjuntar el PDF desde este dispositivo.");
+      return;
+    }
+
+    await navigator.share(shareData);
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return;
+    }
+
+    console.error(error);
+    toast.error("No se pudo compartir el reporte.");
+  }
+};
 
   return (
     <div className="mx-auto max-w-3xl space-y-4 px-4 py-6">
