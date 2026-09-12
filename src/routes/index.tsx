@@ -1,267 +1,241 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  CheckCircle2,
-  ClipboardList,
-  Cloud,
-  FileDown,
-  Fuel,
-  Gauge,
-  HardHat,
-  ListChecks,
-  ShieldCheck,
-  Truck,
-  WifiOff,
-} from "lucide-react";
-import heroMina from "@/assets/hero-mina.jpg";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { ArrowRight, Shield, Zap, BarChart3, Download, Share2, Check } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Reporte de Operaciones por Guardia | Minería y Construcción" },
-      {
-        name: "description",
-        content:
-          "Plataforma offline-first para registrar la guardia en minería subterránea: robots, mixers, fallas y desechos con PDF instantáneo y cero pérdida de datos.",
-      },
-      { property: "og:title", content: "Reporte de Operaciones por Guardia | Minería y Construcción" },
-      {
-        property: "og:description",
-        content:
-          "Registre la guardia sin conexión, estandarice la información de robots y mixers y genere el PDF en segundos.",
-      },
-    ],
-  }),
-  component: Landing,
-});
+export function LandingPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
 
-const beneficios = [
-  {
-    icon: WifiOff,
-    titulo: "Cero pérdida de datos",
-    texto:
-      "El reporte se guarda en el dispositivo a cada paso. Interior mina, sin señal, batería baja: la información queda intacta.",
-  },
-  {
-    icon: ListChecks,
-    titulo: "Estandarización total",
-    texto:
-      "Un solo formato para todas las guardias: estados de equipo, combustible, lanzamientos, carguíos, fallas y desechos.",
-  },
-  {
-    icon: FileDown,
-    titulo: "PDF instantáneo",
-    texto:
-      "Al finalizar la guardia el reporte se bloquea y genera un PDF listo para descargar o compartir por WhatsApp y correo.",
-  },
-  {
-    icon: ShieldCheck,
-    titulo: "Trazabilidad de equipos",
-    texto:
-      "Cada robot y mixer conserva su historial de estados, fallas y acciones tomadas guardia tras guardia.",
-  },
-];
+  const benefits = [
+    {
+      icon: Shield,
+      title: 'Cero Pérdida de Datos',
+      description: 'Funciona sin internet. Sincroniza automáticamente cuando hay conexión.',
+    },
+    {
+      icon: Zap,
+      title: 'Generación Instantánea de PDF',
+      description: 'Descarga reportes listos en segundos con formato profesional.',
+    },
+    {
+      icon: BarChart3,
+      title: 'Trazabilidad Completa',
+      description: 'Registro detallado de cada operación, falla y mantenimiento.',
+    },
+    {
+      icon: Download,
+      title: 'Compartir Fácilmente',
+      description: 'WhatsApp, Correo, Enlace o descarga - elige tu medio.',
+    },
+  ];
 
-const pasos = [
-  { icon: HardHat, titulo: "Datos de guardia", texto: "Fecha, tipo de guardia y supervisor responsable." },
-  { icon: Gauge, titulo: "Estado de equipos", texto: "Robots y mixers con contadores por estado en vivo." },
-  { icon: Fuel, titulo: "Combustible y aditivo", texto: "Control de inicio, media y final más aditivo en robots." },
-  { icon: Truck, titulo: "Lanzamientos y carguíos", texto: "Solo equipos operativos, con múltiples registros por hora." },
-  { icon: ClipboardList, titulo: "Fallas y desechos", texto: "Tipo de falla, acción tomada, morteros y cantidades." },
-  { icon: FileDown, titulo: "Resumen y cierre", texto: "Validación, bloqueo de edición y PDF descargable." },
-];
+  const steps = [
+    {
+      number: '1',
+      title: 'Datos de Guardia',
+      description: 'Fecha, tipo (Día/Noche) y supervisor',
+    },
+    {
+      number: '2',
+      title: 'Estado de Equipos',
+      description: 'Define el estado de robots y mixers',
+    },
+    {
+      number: '3',
+      title: 'Registra Operaciones',
+      description: 'Lanzamientos, carguíos, fallas y desechos',
+    },
+    {
+      number: '4',
+      title: 'Finaliza & Descarga',
+      description: 'Valida, bloquea y descarga tu PDF',
+    },
+  ];
 
-const metricas = [
-  { valor: "-72%", label: "Tiempo de cierre de guardia" },
-  { valor: "0", label: "Reportes perdidos por falta de señal" },
-  { valor: "100%", label: "Guardias con formato estandarizado" },
-  { valor: "< 5 s", label: "Generación del PDF final" },
-];
+  const features = [
+    'Offline-First para minería subterránea',
+    '9 Robots + 15 Mixers pre-configurados',
+    'Control de combustible y aditivos',
+    'Módulo de fallas con acciones',
+    'Gestión de desechos/morteros',
+    'Historial con filtros avanzados',
+    'Admin de catálogos',
+    'Sincronización automática en la nube',
+  ];
 
-function Landing() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className="grid size-9 place-items-center rounded bg-primary text-primary-foreground">
-              <HardHat className="size-5" />
-            </span>
-            <div className="leading-tight">
-              <p className="text-sm font-bold uppercase tracking-widest">Guardia Ops</p>
-              <p className="text-[11px] text-muted-foreground">Reporte de operaciones</p>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white">
+      {/* Navigation */}
+      <nav className="border-b border-slate-700 bg-slate-900/50 backdrop-blur">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center font-bold text-lg">
+              ⛏️
             </div>
+            <span className="text-xl font-bold">Mine Report Pro</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-              <Link to="/app/historial">Historial</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/app">Ingresar a la Aplicación</Link>
-            </Button>
-          </div>
+          <button
+            onClick={() => navigate({ to: '/app' })}
+            className="px-6 py-2 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 rounded-lg font-semibold transition-all transform hover:scale-105"
+          >
+            Ingresar →
+          </button>
         </div>
-      </header>
+      </nav>
 
-      <section className="relative overflow-hidden border-b border-border">
-        <img
-          src={heroMina}
-          alt="Robot lanzador de shotcrete y mixer operando en un túnel de mina subterránea"
-          width={1600}
-          height={1008}
-          className="absolute inset-0 size-full object-cover opacity-35"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/50" />
-        <div className="relative mx-auto max-w-6xl px-4 py-20 sm:py-28">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
-            Offline-First
-          </span>
-          <h1 className="mt-5 max-w-3xl text-4xl font-black uppercase leading-[1.05] tracking-tight sm:text-6xl">
-            Reporte de operaciones por guardia para minería subterránea y operaciones pesadas
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="text-center space-y-8">
+          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 bg-clip-text text-transparent leading-tight">
+            Reportes de Operaciones
+            <br />
+            Minería & Construcción
           </h1>
-          <p className="mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            Registre robots lanzadores, mixers, combustible, fallas y desechos desde el interior mina — sin
-            señal, sin planillas de papel y sin volver a pasar datos a mano al final del turno.
+
+          <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            Plataforma offline-first diseñada para operaciones pesadas en terreno.
+            <br />
+            <span className="text-orange-400 font-semibold">Cero pérdida de datos. Generación instantánea de PDF.</span>
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link to="/app/reporte/nuevo">
-                Iniciar Reporte <ArrowRight className="ml-1 size-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/app">Ingresar a la Aplicación</Link>
-            </Button>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <button
+              onClick={() => navigate({ to: '/app' })}
+              className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 rounded-lg font-bold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+            >
+              Iniciar Reporte <ArrowRight className="w-5 h-5" />
+            </button>
+            <button className="px-8 py-4 border-2 border-slate-500 hover:border-orange-500 rounded-lg font-bold text-lg transition-all">
+              Saber Más
+            </button>
           </div>
-          <dl className="mt-14 grid grid-cols-2 gap-6 border-t border-border/70 pt-8 sm:grid-cols-4">
-            {metricas.map((m) => (
-              <div key={m.label}>
-                <dt className="text-3xl font-black text-primary sm:text-4xl">{m.valor}</dt>
-                <dd className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">{m.label}</dd>
-              </div>
-            ))}
-          </dl>
+
+          {/* Connectivity Status */}
+          <div className="inline-flex items-center gap-2 bg-slate-700/50 border border-slate-600 px-4 py-2 rounded-full">
+            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm text-slate-300">Conectado • Sincronización automática activa</span>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="text-2xl font-bold uppercase tracking-tight sm:text-3xl">Beneficios clave</h2>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {beneficios.map((b) => (
-            <div
-              key={b.titulo}
-              className="rounded-lg border border-border bg-card p-5 transition-colors hover:border-primary/50"
-            >
-              <b.icon className="size-6 text-primary" />
-              <h3 className="mt-4 text-base font-semibold">{b.titulo}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{b.texto}</p>
+      {/* Impact Metrics */}
+      <section className="bg-slate-800/50 border-y border-slate-700 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-400">24 Equipos</div>
+              <p className="text-slate-400 text-sm">Robots + Mixers</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-400">100%</div>
+              <p className="text-slate-400 text-sm">Offline Ready</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-400">&lt;2s</div>
+              <p className="text-slate-400 text-sm">PDF Generation</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-orange-400">∞</div>
+              <p className="text-slate-400 text-sm">Sincronizaciones</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h2 className="text-4xl font-bold text-center mb-16">Por qué Mine Report Pro</h2>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {benefits.map((benefit, idx) => {
+            const Icon = benefit.icon;
+            return (
+              <div
+                key={idx}
+                className="bg-slate-800/50 border border-slate-700 rounded-lg p-8 hover:border-orange-500 transition-all hover:shadow-lg hover:shadow-orange-500/20"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold mb-2">{benefit.title}</h3>
+                    <p className="text-slate-400">{benefit.description}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="bg-slate-800/50 border-y border-slate-700 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-4xl font-bold text-center mb-16">Características Incluidas</h2>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {features.map((feature, idx) => (
+              <div key={idx} className="flex items-start gap-3 bg-slate-700/30 p-4 rounded-lg border border-slate-600">
+                <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-100">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Step-by-step Flow */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h2 className="text-4xl font-bold text-center mb-16">Flujo Guiado paso a paso</h2>
+
+        <div className="grid md:grid-cols-4 gap-6">
+          {steps.map((step, idx) => (
+            <div key={idx} className="relative">
+              <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-lg p-8 text-center h-full flex flex-col justify-center">
+                <div className="text-5xl font-bold mb-4">{step.number}</div>
+                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                <p className="text-slate-100 text-sm">{step.description}</p>
+              </div>
+              {idx < steps.length - 1 && (
+                <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-1 bg-gradient-to-r from-orange-500 to-red-600 transform -translate-y-1/2"></div>
+              )}
             </div>
           ))}
         </div>
       </section>
 
-      <section className="border-y border-border bg-card/40">
-        <div className="mx-auto max-w-6xl px-4 py-16">
-          <h2 className="text-2xl font-bold uppercase tracking-tight sm:text-3xl">Flujo guiado paso a paso</h2>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            El operador avanza pantalla por pantalla. No se puede finalizar la guardia con información
-            incompleta.
-          </p>
-          <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {pasos.map((p, i) => (
-              <li key={p.titulo} className="relative rounded-lg border border-border bg-background p-5">
-                <span className="absolute right-4 top-4 text-4xl font-black text-muted/60">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <p.icon className="size-5 text-primary" />
-                <h3 className="mt-3 text-base font-semibold">{p.titulo}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{p.texto}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      {/* CTA Section */}
+      <section className="bg-gradient-to-r from-orange-600 to-red-700 py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+          <h2 className="text-4xl font-bold">¿Listo para optimizar tus operaciones?</h2>
+          <p className="text-lg text-orange-50">Comienza a generar reportes profesionales en segundos</p>
 
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div>
-            <h2 className="text-2xl font-bold uppercase tracking-tight sm:text-3xl">Vista previa del reporte</h2>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Así se ve el resumen que firma el supervisor antes de cerrar la guardia: contadores por estado,
-              lanzamientos, carguíos y fallas en una sola pantalla.
-            </p>
-            <ul className="mt-6 space-y-3 text-sm">
-              {[
-                "Contadores dinámicos de robots y mixers por estado",
-                "Combustible en inicio, media y final más aditivo por robot",
-                "Fallas con acción tomada y estado final del equipo",
-                "PDF descargable y compartible al finalizar",
-              ].map((t) => (
-                <li key={t} className="flex gap-2">
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-status-operativo" />
-                  <span className="text-muted-foreground">{t}</span>
-                </li>
-              ))}
-            </ul>
-            <Button asChild className="mt-8">
-              <Link to="/app/reporte/nuevo">Probar el flujo completo</Link>
-            </Button>
-          </div>
-
-          <div className="rounded-xl border border-border bg-card p-5 shadow-lg">
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Guardia Día</p>
-                <p className="text-lg font-bold">RG-20260911-D</p>
-              </div>
-              <span className="rounded bg-status-operativo/15 px-2 py-1 text-xs font-semibold text-status-operativo">
-                Sincronizado
-              </span>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
-              {[
-                { n: 3, l: "Operativos", c: "text-status-operativo" },
-                { n: 1, l: "Inoperativos", c: "text-status-inoperativo" },
-                { n: 1, l: "Mantenimiento", c: "text-status-mantenimiento" },
-                { n: 1, l: "Stand By", c: "text-status-standby" },
-              ].map((s) => (
-                <div key={s.l} className="rounded border border-border bg-background p-3">
-                  <p className={`text-2xl font-black ${s.c}`}>{s.n}</p>
-                  <p className="text-[11px] uppercase text-muted-foreground">{s.l}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 space-y-2 text-sm">
-              {[
-                ["08:40", "RB-01 · Shotcrete 5 cm labor Tj-420"],
-                ["08:05", "MX-01 · Carguío 4 m³ F'c 280"],
-                ["10:20", "RB-04 · Falla hidráulica → Mantenimiento"],
-                ["14:00", "Rebote de shotcrete · 0.8 m³"],
-              ].map(([h, t]) => (
-                <div key={t} className="flex gap-3 rounded border border-border/70 bg-background px-3 py-2">
-                  <span className="font-mono text-xs text-primary">{h}</span>
-                  <span className="text-muted-foreground">{t}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-              <Cloud className="size-4" /> Guardado local automático · PDF listo al finalizar
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={() => navigate({ to: '/app' })}
+              className="px-8 py-4 bg-white text-orange-600 hover:bg-slate-100 rounded-lg font-bold text-lg transition-all transform hover:scale-105"
+            >
+              Iniciar Reporte Ahora
+            </button>
+            <button className="px-8 py-4 border-2 border-white text-white hover:bg-white/10 rounded-lg font-bold text-lg transition-all">
+              Solicitar Demo
+            </button>
           </div>
         </div>
       </section>
 
-      <footer className="border-t border-border bg-card/40">
-        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-4 py-10 sm:flex-row sm:items-center">
-          <p className="text-sm text-muted-foreground">
-            Guardia Ops · Reporte de operaciones por guardia para minería y construcción.
-          </p>
-          <Button asChild variant="outline">
-            <Link to="/app">Ingresar a la Aplicación</Link>
-          </Button>
+      {/* Footer */}
+      <footer className="border-t border-slate-700 bg-slate-900 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-400 text-sm">
+          <p>Mine Report Pro © 2026 • Diseñado para operaciones mineras y construcción</p>
+          <p className="mt-2">Offline-First • Sincronización automática • Generación de PDF instantánea</p>
         </div>
       </footer>
     </div>
   );
+}
+
+export default function LandingRoute() {
+  return <LandingPage />;
 }
