@@ -278,8 +278,8 @@ function NuevoReporte() {
         {paso === 3 && (
           <>
             <p className="text-sm text-muted-foreground">
-              Control exclusivo de robots lanzadores: marque los momentos en que se cargó combustible e indique el
-              uso de aditivo.
+              Control exclusivo de robots lanzadores: marque los momentos en que se cargó combustible e indique si
+              tiene aditivo.
             </p>
             <ul className="space-y-3">
               {robotsActivos.map((r) => {
