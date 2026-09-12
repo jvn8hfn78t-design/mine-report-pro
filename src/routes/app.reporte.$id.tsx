@@ -133,7 +133,6 @@ const enviarPorCorreo = async () => {
           </Button>
           <Button variant="outline" onClick={enviarPorCorreo}>
   <Mail className="mr-1 size-4" /> Correo
-</Button>
           </Button>
           <Button variant="outline" onClick={compartirEnlace}>
             <Link2 className="mr-1 size-4" /> Copiar enlace
