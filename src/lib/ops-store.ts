@@ -12,20 +12,33 @@ export interface OpsData {
 }
 
 const seedRobots: Equipo[] = [
-  { id: "rb-01", codigo: "RB-01", modelo: "Normet Spraymec 8100 VC", ubicacion: "Nivel 320 - Rampa", activo: true },
-  { id: "rb-02", codigo: "RB-02", modelo: "Putzmeister SPM 4210", ubicacion: "Nivel 380 - Tajo 4", activo: true },
-  { id: "rb-03", codigo: "RB-03", modelo: "Normet Spraymec 6050 WPC", ubicacion: "Nivel 260 - By Pass", activo: true },
-  { id: "rb-04", codigo: "RB-04", modelo: "Aliva AL-503", ubicacion: "Taller Mina", activo: true },
-  { id: "rb-05", codigo: "RB-05", modelo: "Putzmeister SPM 500 Wetkret", ubicacion: "Nivel 420 - Crucero", activo: true },
+  { id: "rb-074", codigo: "RB-074", modelo: "", ubicacion: "", activo: true },
+  { id: "rb-076", codigo: "RB-076", modelo: "", ubicacion: "", activo: true },
+  { id: "rb-077", codigo: "RB-077", modelo: "", ubicacion: "", activo: true },
+  { id: "rb-085", codigo: "RB-085", modelo: "", ubicacion: "", activo: true },
+  { id: "rb-086", codigo: "RB-086", modelo: "", ubicacion: "", activo: true },
+  { id: "rb-105", codigo: "RB-105", modelo: "", ubicacion: "", activo: true },
+  { id: "rb-106", codigo: "RB-106", modelo: "", ubicacion: "", activo: true },
+  { id: "rb-109", codigo: "RB-109", modelo: "", ubicacion: "", activo: true },
+  { id: "rb-113", codigo: "RB-113", modelo: "", ubicacion: "", activo: true },
 ];
 
 const seedMixers: Equipo[] = [
-  { id: "mx-01", codigo: "MX-01", modelo: "Normet Utimec MF 500", ubicacion: "Planta de concreto", activo: true },
-  { id: "mx-02", codigo: "MX-02", modelo: "Getman A64 Mixer", ubicacion: "Nivel 320", activo: true },
-  { id: "mx-03", codigo: "MX-03", modelo: "Normet Utimec MF 100", ubicacion: "Nivel 380", activo: true },
-  { id: "mx-04", codigo: "MX-04", modelo: "MTI Mixer 4m³", ubicacion: "Taller Mina", activo: true },
-  { id: "mx-05", codigo: "MX-05", modelo: "Normet Utimec MF 500", ubicacion: "Rampa principal", activo: true },
-  { id: "mx-06", codigo: "MX-06", modelo: "Getman A64 Mixer", ubicacion: "Nivel 260", activo: true },
+  { id: "mx-298", codigo: "MX-298", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-303", codigo: "MX-303", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-307", codigo: "MX-307", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-311", codigo: "MX-311", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-316", codigo: "MX-316", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-318", codigo: "MX-318", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-327", codigo: "MX-327", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-328", codigo: "MX-328", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-329", codigo: "MX-329", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-332", codigo: "MX-332", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-342", codigo: "MX-342", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-343", codigo: "MX-343", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-344", codigo: "MX-344", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-345", codigo: "MX-345", modelo: "", ubicacion: "", activo: true },
+  { id: "mx-346", codigo: "MX-346", modelo: "", ubicacion: "", activo: true },
 ];
 
 const seedUsuarios: Usuario[] = [
