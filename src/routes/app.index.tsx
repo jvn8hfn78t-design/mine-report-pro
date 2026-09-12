@@ -22,11 +22,24 @@ function Panel() {
   const ultimos = data.reportes.slice(0, 5);
   const pendientes = data.reportes.filter((r) => r.sync === "pendiente").length;
 
-  const conteo = (estado: EstadoEquipo) =>
-    data.reportes[0]
-      ? Object.values(data.reportes[0].robots).filter((r) => r.estado === estado).length +
-        Object.values(data.reportes[0].mixers).filter((m) => m.estado === estado).length
-      : 0;
+  const ultimoReporte = data.reportes[0];
+
+const conteoRobots = (estado: EstadoEquipo) =>
+  ultimoReporte
+    ? Object.values(ultimoReporte.robots).filter((r) => r.estado === estado).length
+    : 0;
+
+const conteoMixers = (estado: EstadoEquipo) =>
+  ultimoReporte
+    ? Object.values(ultimoReporte.mixers).filter((m) => m.estado === estado).length
+    : 0;
+
+const estados: EstadoEquipo[] = [
+  "operativo",
+  "inoperativo",
+  "mantenimiento",
+  "standby",
+];
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 px-4 py-6">
@@ -58,17 +71,53 @@ function Panel() {
         </Button>
       )}
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {(["operativo", "inoperativo", "mantenimiento", "standby"] as EstadoEquipo[]).map((e) => (
-          <div key={e} className="rounded-lg border border-border bg-card p-4">
-            <p className="text-3xl font-black">{conteo(e)}</p>
-            <span className={`mt-2 inline-block rounded px-2 py-0.5 text-[11px] font-semibold ${ESTADO_CLASSES[e]}`}>
-              {ESTADO_LABEL[e]}
-            </span>
-            <p className="mt-1 text-[11px] text-muted-foreground">Último reporte</p>
-          </div>
-        ))}
+      <section className="space-y-3">
+  <h2 className="text-sm font-semibold uppercase tracking-wide">
+    Estado de robots
+  </h2>
+
+  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    {estados.map((e) => (
+      <div key={e} className="rounded-lg border border-border bg-card p-4">
+        <p className="text-3xl font-black">{conteoRobots(e)}</p>
+
+        <span
+          className={`mt-2 inline-block rounded px-2 py-0.5 text-[11px] font-semibold ${ESTADO_CLASSES[e]}`}
+        >
+          {ESTADO_LABEL[e]}
+        </span>
+
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Último reporte
+        </p>
       </div>
+    ))}
+  </div>
+</section>
+
+<section className="space-y-3">
+  <h2 className="text-sm font-semibold uppercase tracking-wide">
+    Estado de mixers
+  </h2>
+
+  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    {estados.map((e) => (
+      <div key={e} className="rounded-lg border border-border bg-card p-4">
+        <p className="text-3xl font-black">{conteoMixers(e)}</p>
+
+        <span
+          className={`mt-2 inline-block rounded px-2 py-0.5 text-[11px] font-semibold ${ESTADO_CLASSES[e]}`}
+        >
+          {ESTADO_LABEL[e]}
+        </span>
+
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Último reporte
+        </p>
+      </div>
+    ))}
+  </div>
+</section>
 
       <div className="rounded-lg border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
