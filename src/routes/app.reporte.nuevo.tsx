@@ -849,7 +849,6 @@ function NuevoReporte() {
               {
                 titulo: "Lanzamientos",
                 paso: 4,
-                contenido:
                   contenido:
   rep.lanzamientos
     .map(
@@ -861,7 +860,6 @@ function NuevoReporte() {
               {
                 titulo: "Carguío de mixers",
                 paso: 5,
-                contenido:
                   contenido:
   rep.carguios
     .map(
