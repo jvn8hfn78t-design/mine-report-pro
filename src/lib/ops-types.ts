@@ -51,7 +51,8 @@ export interface Lanzamiento {
   id: string;
   robotId: string;
   hora: string;
-  descripcion: string;
+  labor: string;
+  cantidad: number;
   notas: string;
 }
 
@@ -59,7 +60,8 @@ export interface Carguio {
   id: string;
   mixerId: string;
   hora: string;
-  descripcion: string;
+  labor: string;
+  cantidad: number;
   notas: string;
 }
 
