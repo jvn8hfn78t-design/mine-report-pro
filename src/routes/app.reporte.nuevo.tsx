@@ -390,10 +390,10 @@ function NuevoReporte() {
                       />
                     </div>
                     <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs">Descripción</Label>
+                      <Label className="text-xs">Labor y m³</Label>
                       <Input
                         value={l.descripcion}
-                        placeholder="Labor, espesor, volumen"
+                        placeholder="Labor y m³"
                         onChange={(e) =>
                           up({
                             lanzamientos: rep.lanzamientos.map((x) =>
@@ -496,10 +496,10 @@ function NuevoReporte() {
                       />
                     </div>
                     <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs">Descripción</Label>
+                      <Label className="text-xs">Labor y m³</Label>
                       <Input
                         value={c.descripcion}
-                        placeholder="Volumen y tipo de mezcla"
+                        placeholder="Labor y m³"
                         onChange={(e) =>
                           up({
                             carguios: rep.carguios.map((x) =>
