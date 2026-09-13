@@ -389,20 +389,46 @@ function NuevoReporte() {
                         }
                       />
                     </div>
-                    <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs">Labor y m³</Label>
-                      <Input
-                        value={l.descripcion}
-                        placeholder="Labor y m³"
-                        onChange={(e) =>
-                          up({
-                            lanzamientos: rep.lanzamientos.map((x) =>
-                              x.id === l.id ? { ...x, descripcion: e.target.value } : x,
-                            ),
-                          })
-                        }
-                      />
-                    </div>
+                    <div className="space-y-1">
+  <Label className="text-xs">Labor</Label>
+  <Input
+    value={l.labor}
+    placeholder="Ej. Shotcrete"
+    onChange={(e) =>
+      up({
+        lanzamientos: rep.lanzamientos.map((x) =>
+          x.id === l.id ? { ...x, labor: e.target.value } : x,
+        ),
+      })
+    }
+  />
+</div>
+
+<div className="space-y-1">
+  <Label className="text-xs">Cantidad</Label>
+  <Input
+    type="number"
+    min="0"
+    step="0.01"
+    value={l.cantidad}
+    onChange={(e) =>
+      up({
+        lanzamientos: rep.lanzamientos.map((x) =>
+          x.id === l.id
+            ? { ...x, cantidad: Number(e.target.value) }
+            : x,
+        ),
+      })
+    }
+  />
+</div>
+
+<div className="space-y-1">
+  <Label className="text-xs">Unidad</Label>
+  <div className="flex h-9 items-center rounded-md border border-border bg-muted px-3 text-sm font-medium">
+    m³
+  </div>
+</div>
                     <div className="space-y-1 sm:col-span-2">
                       <Label className="text-xs">Notas</Label>
                       <Textarea
@@ -426,12 +452,13 @@ function NuevoReporte() {
                       lanzamientos: [
                         ...rep.lanzamientos,
                         {
-                          id: uid("lz"),
-                          robotId: robotsOperativos[0]?.id ?? "",
-                          hora: new Date().toTimeString().slice(0, 5),
-                          descripcion: "",
-                          notas: "",
-                        },
+  id: uid("lz"),
+  robotId: robotsOperativos[0]?.id ?? "",
+  hora: new Date().toTimeString().slice(0, 5),
+  labor: "",
+  cantidad: 0,
+  notas: "",
+},
                       ],
                     })
                   }
@@ -496,19 +523,46 @@ function NuevoReporte() {
                       />
                     </div>
                     <div className="space-y-1 sm:col-span-2">
-                      <Label className="text-xs">Labor y m³</Label>
-                      <Input
-                        value={c.descripcion}
-                        placeholder="Labor y m³"
-                        onChange={(e) =>
-                          up({
-                            carguios: rep.carguios.map((x) =>
-                              x.id === c.id ? { ...x, descripcion: e.target.value } : x,
-                            ),
-                          })
-                        }
-                      />
-                    </div>
+                      <div className="space-y-1">
+  <Label className="text-xs">Labor</Label>
+  <Input
+    value={c.labor}
+    placeholder="Ej. Shotcrete"
+    onChange={(e) =>
+      up({
+        carguios: rep.carguios.map((x) =>
+          x.id === c.id ? { ...x, labor: e.target.value } : x,
+        ),
+      })
+    }
+  />
+</div>
+
+<div className="space-y-1">
+  <Label className="text-xs">Cantidad</Label>
+  <Input
+    type="number"
+    min="0"
+    step="0.01"
+    value={c.cantidad}
+    onChange={(e) =>
+      up({
+        carguios: rep.carguios.map((x) =>
+          x.id === c.id
+            ? { ...x, cantidad: Number(e.target.value) }
+            : x,
+        ),
+      })
+    }
+  />
+</div>
+
+<div className="space-y-1">
+  <Label className="text-xs">Unidad</Label>
+  <div className="flex h-9 items-center rounded-md border border-border bg-muted px-3 text-sm font-medium">
+    m³
+  </div>
+</div>
                     <div className="space-y-1 sm:col-span-2">
                       <Label className="text-xs">Notas</Label>
                       <Textarea
@@ -530,12 +584,13 @@ function NuevoReporte() {
                       carguios: [
                         ...rep.carguios,
                         {
-                          id: uid("cg"),
-                          mixerId: mixersOperativos[0]?.id ?? "",
-                          hora: new Date().toTimeString().slice(0, 5),
-                          descripcion: "",
-                          notas: "",
-                        },
+  id: uid("cg"),
+  mixerId: mixersOperativos[0]?.id ?? "",
+  hora: new Date().toTimeString().slice(0, 5),
+  labor: "",
+  cantidad: 0,
+  notas: "",
+},
                       ],
                     })
                   }
