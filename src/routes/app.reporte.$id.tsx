@@ -156,7 +156,8 @@ const compartirPdf = async () => {
         {rep.lanzamientos.map((l) => (
           <p key={l.id} className="border-b border-border/60 pb-2">
             <span className="font-mono text-xs text-primary">{l.hora}</span> · {nombreEquipo(data, l.robotId)} ·{" "}
-            {l.descripcion} {l.notas && <span className="text-muted-foreground">({l.notas})</span>}
+            {l.labor} · {l.cantidad} m³{" "}
+{l.notas && <span className="text-muted-foreground">({l.notas})</span>}
           </p>
         ))}
       </Seccion>
@@ -166,7 +167,8 @@ const compartirPdf = async () => {
         {rep.carguios.map((c) => (
           <p key={c.id} className="border-b border-border/60 pb-2">
             <span className="font-mono text-xs text-primary">{c.hora}</span> · {nombreEquipo(data, c.mixerId)} ·{" "}
-            {c.descripcion} {c.notas && <span className="text-muted-foreground">({c.notas})</span>}
+            {c.labor} · {c.cantidad} m³{" "}
+{c.notas && <span className="text-muted-foreground">({c.notas})</span>}
           </p>
         ))}
       </Seccion>
