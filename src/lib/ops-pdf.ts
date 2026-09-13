@@ -75,15 +75,43 @@ export function construirPdf(rep: Reporte, data: OpsData) {
   titulo("LANZAMIENTOS DE ROBOTS");
   seccion(
     "lanzamientos",
-    ["Hora", "Robot", "Descripción", "Notas"],
-    rep.lanzamientos.map((l) => [l.hora, nombreEquipo(data, l.robotId), l.descripcion, l.notas || "-"]),
+    [
+  "Hora",
+  "Robot",
+  "Labor",
+  "Cantidad",
+  "Unidad",
+  "Notas"
+],
+rep.lanzamientos.map((l) => [
+  l.hora,
+  nombreEquipo(data, l.robotId),
+  l.labor,
+  l.cantidad,
+  "m³",
+  l.notas || "-",
+]),
   );
 
   titulo("CARGUÍO DE MIXERS");
   seccion(
     "carguios",
-    ["Hora", "Mixer", "Descripción", "Notas"],
-    rep.carguios.map((c) => [c.hora, nombreEquipo(data, c.mixerId), c.descripcion, c.notas || "-"]),
+    [
+  "Hora",
+  "Mixer",
+  "Labor",
+  "Cantidad",
+  "Unidad",
+  "Notas"
+],
+rep.carguios.map((c) => [
+  c.hora,
+  nombreEquipo(data, c.mixerId),
+  c.labor,
+  c.cantidad,
+  "m³",
+  c.notas || "-",
+]),
   );
 
   titulo("FALLAS REPORTADAS");
