@@ -522,8 +522,7 @@ function NuevoReporte() {
                         }
                       />
                     </div>
-                    <div className="space-y-1 sm:col-span-2">
-                      <div className="space-y-1">
+                    <div className="space-y-1">
   <Label className="text-xs">Labor</Label>
   <Input
     value={c.labor}
@@ -851,15 +850,25 @@ function NuevoReporte() {
                 titulo: "Lanzamientos",
                 paso: 4,
                 contenido:
-                  rep.lanzamientos.map((l) => `${l.hora} ${nombreEquipo(data, l.robotId)}: ${l.descripcion}`).join(" · ") ||
-                  "Sin registros",
+                  contenido:
+  rep.lanzamientos
+    .map(
+      (l) =>
+        `${l.hora} ${nombreEquipo(data, l.robotId)}: ${l.labor} · ${l.cantidad} m³`,
+    )
+    .join(" · ") || "Sin registros",
               },
               {
                 titulo: "Carguío de mixers",
                 paso: 5,
                 contenido:
-                  rep.carguios.map((c) => `${c.hora} ${nombreEquipo(data, c.mixerId)}: ${c.descripcion}`).join(" · ") ||
-                  "Sin registros",
+                  contenido:
+  rep.carguios
+    .map(
+      (c) =>
+        `${c.hora} ${nombreEquipo(data, c.mixerId)}: ${c.labor} · ${c.cantidad} m³`,
+    )
+    .join(" · ") || "Sin registros",
               },
               {
                 titulo: "Fallas",
