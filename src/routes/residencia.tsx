@@ -8,6 +8,9 @@ import {
   ChevronUp,
   AlertTriangle,
   Trash2,
+  Fuel,
+  ClipboardList,
+  FileText,
 } from 'lucide-react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useOpsData, nombreSupervisor } from '../lib/ops-store';
@@ -36,6 +39,55 @@ const reporte =
       r.fecha === fechaSeleccionada &&
       r.tipoGuardia === tipoGuardiaSeleccionado,
   ) ?? null;
+const equiposAtencion = [
+  ...data.robots.map((robot) => ({
+    equipoId: robot.id,
+    estado: reporte?.robots[robot.id]?.estado,
+  })),
+  ...data.mixers.map((mixer) => ({
+    equipoId: mixer.id,
+    estado: reporte?.mixers[mixer.id]?.estado,
+  })),
+];
+
+const totalAtencion = equiposAtencion.filter(
+  (equipo) =>
+    equipo.estado === 'inoperativo' ||
+    equipo.estado === 'mantenimiento',
+).length;
+
+const totalInoperativos = equiposAtencion.filter(
+  (equipo) => equipo.estado === 'inoperativo',
+).length;
+
+const totalFallas = reporte?.fallas.length ?? 0;
+
+const totalDesechos =
+  reporte?.desechos
+    .filter((d) => d.tipo.toLowerCase().includes('desecho'))
+    .reduce((total, item) => total + item.cantidad, 0) ?? 0;
+
+const totalMorteros =
+  reporte?.desechos
+    .filter((d) => d.tipo.toLowerCase().includes('mortero'))
+    .reduce((total, item) => total + item.cantidad, 0) ?? 0;
+
+const totalCombustibleCompletos =
+  reporte
+    ? data.robots.filter(
+        (robot) =>
+          reporte.robots[robot.id]?.combustible?.inicio &&
+          reporte.robots[robot.id]?.combustible?.media &&
+          reporte.robots[robot.id]?.combustible?.final,
+      ).length
+    : 0;
+
+const totalAditivoRegistrado =
+  reporte
+    ? data.robots.filter(
+        (robot) => reporte.robots[robot.id]?.aditivo !== null,
+      ).length
+    : 0;
     if (!reporte) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-6">
@@ -160,7 +212,7 @@ const reporte =
 
         <div className="space-y-6">
 
-  {/*{/* ESTADO DE EQUIPOS */}
+  {/* ESTADO DE EQUIPOS */}
 <section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
 
   <div className="flex items-center gap-3 mb-6">
@@ -816,8 +868,309 @@ const reporte =
 
 </section>
 
+{/* COMBUSTIBLE Y ADITIVO */}
+<section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
+
+  <div className="flex items-center gap-3 mb-5">
+    <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+      <Fuel className="w-5 h-5 text-orange-400" />
+    </div>
+
+    <div>
+      <h3 className="text-xl font-bold">
+        ⛽ Combustible y Aditivo
+      </h3>
+
+      <p className="text-sm text-slate-400">
+        Control registrado por robot durante la guardia
+      </p>
+    </div>
+  </div>
+
+  <div className="overflow-x-auto">
+    <table className="w-full text-sm">
+      <thead>
+        <tr className="border-b border-slate-700 text-slate-400">
+
+          <th className="text-left py-3 px-2 font-medium">
+            Robot
+          </th>
+
+          <th className="text-center py-3 px-2 font-medium">
+            IG
+          </th>
+
+          <th className="text-center py-3 px-2 font-medium">
+            MG
+          </th>
+
+          <th className="text-center py-3 px-2 font-medium">
+            FG
+          </th>
+
+          <th className="text-center py-3 px-2 font-medium">
+            Aditivo
+          </th>
+
+        </tr>
+      </thead>
+
+      <tbody>
+        {data.robots.map((robot) => {
+          const detalle = reporte.robots[robot.id];
+
+          return (
+            <tr
+              key={robot.id}
+              className="border-b border-slate-800 last:border-0"
+            >
+
+              <td className="py-3 px-2 font-semibold">
+                {robot.codigo}
+              </td>
+
+              <td className="text-center py-3 px-2">
+                {detalle?.combustible?.inicio ? (
+                  <span className="text-green-400">✓</span>
+                ) : (
+                  <span className="text-slate-600">—</span>
+                )}
+              </td>
+
+              <td className="text-center py-3 px-2">
+                {detalle?.combustible?.media ? (
+                  <span className="text-green-400">✓</span>
+                ) : (
+                  <span className="text-slate-600">—</span>
+                )}
+              </td>
+
+              <td className="text-center py-3 px-2">
+                {detalle?.combustible?.final ? (
+                  <span className="text-green-400">✓</span>
+                ) : (
+                  <span className="text-slate-600">—</span>
+                )}
+              </td>
+
+              <td className="text-center py-3 px-2">
+                {detalle?.aditivo === true ? (
+                  <span className="text-green-400">●</span>
+                ) : detalle?.aditivo === false ? (
+                  <span className="text-slate-500">○</span>
+                ) : (
+                  <span className="text-slate-600">—</span>
+                )}
+              </td>
+
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+
+  <div className="mt-4 pt-3 border-t border-slate-700 text-xs text-slate-500">
+    IG = Inicio de Guardia · MG = Media Guardia · FG = Final de Guardia
+
+    <span className="ml-4">
+      ● Aditivo: Sí · ○ Aditivo: No
+    </span>
+  </div>
+
+</section>
+
+const equiposAtencion = [
+  ...data.robots.map((robot) => ({
+    equipoId: robot.id,
+    estado: reporte?.robots[robot.id]?.estado,
+  })),
+  ...data.mixers.map((mixer) => ({
+    equipoId: mixer.id,
+    estado: reporte?.mixers[mixer.id]?.estado,
+  })),
+];
+
+const totalAtencion = equiposAtencion.filter(
+  (equipo) =>
+    equipo.estado === 'inoperativo' ||
+    equipo.estado === 'mantenimiento',
+).length;
+
+const totalInoperativos = equiposAtencion.filter(
+  (equipo) => equipo.estado === 'inoperativo',
+).length;
+
+const totalFallas = reporte?.fallas.length ?? 0;
+
+const totalDesechos =
+  reporte?.desechos
+    .filter((d) => d.tipo.toLowerCase().includes('desecho'))
+    .reduce((total, item) => total + item.cantidad, 0) ?? 0;
+
+const totalMorteros =
+  reporte?.desechos
+    .filter((d) => d.tipo.toLowerCase().includes('mortero'))
+    .reduce((total, item) => total + item.cantidad, 0) ?? 0;
+
+const totalCombustibleCompletos =
+  reporte
+    ? data.robots.filter(
+        (robot) =>
+          reporte.robots[robot.id]?.combustible?.inicio &&
+          reporte.robots[robot.id]?.combustible?.media &&
+          reporte.robots[robot.id]?.combustible?.final,
+      ).length
+    : 0;
+
+const totalAditivoRegistrado =
+  reporte
+    ? data.robots.filter(
+        (robot) => reporte.robots[robot.id]?.aditivo !== null,
+      ).length
+    : 0;
+
 </div>
       </main>
+
+{/* RESUMEN DE GUARDIA */}
+<section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
+
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+      <ClipboardList className="w-5 h-5 text-blue-400" />
+    </div>
+
+    <div>
+      <h3 className="text-xl font-bold">
+        📋 Resumen de Guardia
+      </h3>
+
+      <p className="text-sm text-slate-400">
+        Principales indicadores de la guardia seleccionada
+      </p>
+    </div>
+  </div>
+
+  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+    {/* FALLAS */}
+    <div className="rounded-xl bg-slate-900/70 p-4">
+      <p className="text-xs text-slate-500 uppercase">
+        Fallas
+      </p>
+
+      <p className="text-3xl font-bold text-orange-400 mt-2">
+        {totalFallas}
+      </p>
+    </div>
+
+    {/* ATENCIÓN */}
+    <div className="rounded-xl bg-slate-900/70 p-4">
+      <p className="text-xs text-slate-500 uppercase">
+        Atención
+      </p>
+
+      <p className="text-3xl font-bold text-red-400 mt-2">
+        {totalAtencion}
+      </p>
+    </div>
+
+    {/* INOPERATIVOS */}
+    <div className="rounded-xl bg-slate-900/70 p-4">
+      <p className="text-xs text-slate-500 uppercase">
+        Inoperativos
+      </p>
+
+      <p className="text-3xl font-bold text-red-400 mt-2">
+        {totalInoperativos}
+      </p>
+    </div>
+
+    {/* DESECHOS */}
+    <div className="rounded-xl bg-slate-900/70 p-4">
+      <p className="text-xs text-slate-500 uppercase">
+        Desechos
+      </p>
+
+      <p className="text-3xl font-bold text-orange-400 mt-2">
+        {totalDesechos.toFixed(1)}
+        <span className="text-sm ml-1">m³</span>
+      </p>
+    </div>
+
+    {/* MORTEROS */}
+    <div className="rounded-xl bg-slate-900/70 p-4">
+      <p className="text-xs text-slate-500 uppercase">
+        Morteros
+      </p>
+
+      <p className="text-3xl font-bold text-blue-400 mt-2">
+        {totalMorteros.toFixed(1)}
+        <span className="text-sm ml-1">m³</span>
+      </p>
+    </div>
+
+    {/* COMBUSTIBLE */}
+    <div className="rounded-xl bg-slate-900/70 p-4">
+      <p className="text-xs text-slate-500 uppercase">
+        Combustible
+      </p>
+
+      <p className="text-3xl font-bold text-green-400 mt-2">
+        {totalCombustibleCompletos}
+        <span className="text-sm text-slate-500 ml-1">
+          / {data.robots.length}
+        </span>
+      </p>
+
+      <p className="text-xs text-slate-500 mt-1">
+        guardias completas
+      </p>
+    </div>
+
+    {/* ADITIVO */}
+    <div className="rounded-xl bg-slate-900/70 p-4">
+      <p className="text-xs text-slate-500 uppercase">
+        Aditivo
+      </p>
+
+      <p className="text-3xl font-bold text-blue-400 mt-2">
+        {totalAditivoRegistrado}
+        <span className="text-sm text-slate-500 ml-1">
+          / {data.robots.length}
+        </span>
+      </p>
+
+      <p className="text-xs text-slate-500 mt-1">
+        registros
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+{/* VER REPORTE COMPLETO */}
+<div className="flex justify-end">
+  <button
+  type="button"
+  onClick={() =>
+    navigate({
+      to: '/residencia/reporte',
+      search: {
+        fecha: fechaSeleccionada,
+        guardia: tipoGuardiaSeleccionado,
+      },
+    })
+  }
+  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 transition-colors"
+>
+    <FileText className="w-5 h-5" />
+    VER REPORTE COMPLETO
+  </button>
+</div>
+
     </div>
   );
 }
