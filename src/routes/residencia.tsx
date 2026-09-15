@@ -1102,15 +1102,10 @@ const totalAditivoRegistrado =
 <div className="flex justify-end">
   <button
     type="button"
-    onClick={() =>
-      navigate({
-        to: '/residencia/reporte',
-        search: {
-          fecha: fechaSeleccionada,
-          guardia: tipoGuardiaSeleccionado,
-        },
-      })
-    }
+    onClick={() => {
+  window.location.href =
+    `/residencia/reporte?fecha=${fechaSeleccionada}&guardia=${tipoGuardiaSeleccionado}`;
+}}
     className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 transition-colors"
   >
     <FileText className="w-5 h-5" />
