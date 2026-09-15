@@ -1123,3 +1123,6 @@ const totalAditivoRegistrado =
     </div>
   );
 }
+export const Route = createFileRoute('/residencia')({
+  component: ResidenciaPage,
+});
