@@ -19,9 +19,20 @@ export function ResidenciaPage() {
     .filter((r) => r.estado === 'finalizado')
     .sort((a, b) => `${b.fecha}-${b.tipoGuardia}`.localeCompare(`${a.fecha}-${a.tipoGuardia}`));
 
-  const [reporteIndex, setReporteIndex] = useState(0);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(
+  reportes[0]?.fecha ?? '',
+);
 
-const reporte = reportes[reporteIndex];
+const [tipoGuardiaSeleccionado, setTipoGuardiaSeleccionado] = useState<
+  'dia' | 'noche'
+>(reportes[0]?.tipoGuardia ?? 'dia');
+
+const reporte =
+  reportes.find(
+    (r) =>
+      r.fecha === fechaSeleccionada &&
+      r.tipoGuardia === tipoGuardiaSeleccionado,
+  ) ?? null;
     if (!reporte) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-6">
@@ -75,42 +86,67 @@ const reporte = reportes[reporteIndex];
           </h2>
 
           <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-800/70 p-4">
-  <div className="flex items-center justify-between gap-3">
-    <button
-      onClick={() =>
-        setReporteIndex((i) => Math.min(i + 1, reportes.length - 1))
-      }
-      disabled={reporteIndex >= reportes.length - 1}
-      className="p-2 rounded-lg border border-slate-600 disabled:opacity-30"
-    >
-      <ChevronLeft size={20} />
-    </button>
+  <div className="grid md:grid-cols-2 gap-4">
 
-    <div className="flex-1 text-center">
-      <p className="text-xs text-slate-400 mb-1">
-        GUARDIA SELECCIONADA
+    <div>
+      <label className="block text-xs text-slate-400 mb-2">
+        📅 FECHA DE GUARDIA
+      </label>
+
+      <input
+        type="date"
+        value={fechaSeleccionada}
+        onChange={(e) => {
+          const nuevaFecha = e.target.value;
+
+          setFechaSeleccionada(nuevaFecha);
+
+          const primeraGuardia = reportes.find(
+            (r) => r.fecha === nuevaFecha,
+          );
+
+          if (primeraGuardia) {
+            setTipoGuardiaSeleccionado(
+              primeraGuardia.tipoGuardia,
+            );
+          }
+        }}
+        className="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-white"
+      />
+    </div>
+
+    <div>
+      <label className="block text-xs text-slate-400 mb-2">
+        🕐 GUARDIA
+      </label>
+
+      <select
+        value={tipoGuardiaSeleccionado}
+        onChange={(e) =>
+          setTipoGuardiaSeleccionado(
+            e.target.value as 'dia' | 'noche',
+          )
+        }
+        className="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-white"
+      >
+        <option value="dia">☀ DÍA</option>
+        <option value="noche">🌙 NOCHE</option>
+      </select>
+    </div>
+
+  </div>
+
+  {reporte && (
+    <div className="mt-4 pt-4 border-t border-slate-700">
+      <p className="text-xs text-slate-400">
+        JEFE DE GUARDIA
       </p>
 
-      <p className="font-semibold">
-        📅 {reporte.fecha} ·{' '}
-        {reporte.tipoGuardia === 'dia' ? '☀ DÍA' : '🌙 NOCHE'}
-      </p>
-
-      <p className="text-sm text-slate-400 mt-1">
+      <p className="font-semibold mt-1">
         {nombreSupervisor(data, reporte.supervisorId)}
       </p>
     </div>
-
-    <button
-      onClick={() =>
-        setReporteIndex((i) => Math.max(i - 1, 0))
-      }
-      disabled={reporteIndex <= 0}
-      className="p-2 rounded-lg border border-slate-600 disabled:opacity-30"
-    >
-      <ChevronRight size={20} />
-    </button>
-  </div>
+  )}
 </div>
 
           <p className="text-slate-400 max-w-2xl">
