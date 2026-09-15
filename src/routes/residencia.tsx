@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronUp,
   AlertTriangle,
+  Trash2,
 } from 'lucide-react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useOpsData, nombreSupervisor } from '../lib/ops-store';
@@ -633,6 +634,185 @@ const reporte =
 
     </div>
   )}
+
+</section>
+
+{/* DESECHOS Y MORTEROS */}
+<section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
+
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+      <Trash2 className="w-5 h-5 text-orange-400" />
+    </div>
+
+    <div>
+      <h3 className="text-xl font-bold">
+        ♻️ Desechos y Morteros
+      </h3>
+
+      <p className="text-sm text-slate-400">
+        Registros generados durante la guardia seleccionada
+      </p>
+    </div>
+  </div>
+
+  {(() => {
+    const desechos = reporte.desechos.filter(
+      (d) => d.tipo.toLowerCase().includes('desecho'),
+    );
+
+    const morteros = reporte.desechos.filter(
+      (d) => d.tipo.toLowerCase().includes('mortero'),
+    );
+
+    const totalDesechos = desechos.reduce(
+      (total, item) => total + item.cantidad,
+      0,
+    );
+
+    const totalMorteros = morteros.reduce(
+      (total, item) => total + item.cantidad,
+      0,
+    );
+
+    return (
+      <div className="grid md:grid-cols-2 gap-4">
+
+        {/* DESECHOS */}
+        <div className="bg-slate-900/70 rounded-xl p-5">
+
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-sm text-slate-400">
+                DESECHOS
+              </p>
+
+              <p className="text-3xl font-bold text-orange-400">
+                {totalDesechos.toFixed(1)} m³
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-orange-500/10 px-3 py-2">
+              <span className="text-sm text-slate-300">
+                {desechos.length} registro{desechos.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+
+          {desechos.length > 0 ? (
+            <div className="space-y-2 border-t border-slate-700 pt-4">
+
+              {desechos.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-lg bg-slate-800 px-4 py-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">
+                      {data.robots.find(
+                        (r) => r.id === item.equipoId,
+                      )?.codigo ??
+                        data.mixers.find(
+                          (m) => m.id === item.equipoId,
+                        )?.codigo ??
+                        item.equipoId}
+                    </span>
+
+                    <span className="text-sm text-slate-400">
+                      {item.hora}
+                    </span>
+                  </div>
+
+                  <div className="mt-1 text-sm text-slate-300">
+                    {item.cantidad} {item.unidad}
+                  </div>
+
+                  {item.descripcion && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      {item.descripcion}
+                    </p>
+                  )}
+                </div>
+              ))}
+
+            </div>
+          ) : (
+            <p className="border-t border-slate-700 pt-4 text-sm text-slate-500">
+              Sin registros de desechos.
+            </p>
+          )}
+
+        </div>
+
+        {/* MORTEROS */}
+        <div className="bg-slate-900/70 rounded-xl p-5">
+
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-sm text-slate-400">
+                MORTEROS
+              </p>
+
+              <p className="text-3xl font-bold text-blue-400">
+                {totalMorteros.toFixed(1)} m³
+              </p>
+            </div>
+
+            <div className="rounded-lg bg-blue-500/10 px-3 py-2">
+              <span className="text-sm text-slate-300">
+                {morteros.length} registro{morteros.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+
+          {morteros.length > 0 ? (
+            <div className="space-y-2 border-t border-slate-700 pt-4">
+
+              {morteros.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-lg bg-slate-800 px-4 py-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">
+                      {data.robots.find(
+                        (r) => r.id === item.equipoId,
+                      )?.codigo ??
+                        data.mixers.find(
+                          (m) => m.id === item.equipoId,
+                        )?.codigo ??
+                        item.equipoId}
+                    </span>
+
+                    <span className="text-sm text-slate-400">
+                      {item.hora}
+                    </span>
+                  </div>
+
+                  <div className="mt-1 text-sm text-slate-300">
+                    {item.cantidad} {item.unidad}
+                  </div>
+
+                  {item.descripcion && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      {item.descripcion}
+                    </p>
+                  )}
+                </div>
+              ))}
+
+            </div>
+          ) : (
+            <p className="border-t border-slate-700 pt-4 text-sm text-slate-500">
+              Sin registros de morteros.
+            </p>
+          )}
+
+        </div>
+
+      </div>
+    );
+  })()}
 
 </section>
 
