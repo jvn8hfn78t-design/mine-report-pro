@@ -980,58 +980,12 @@ const totalAditivoRegistrado =
 
 </section>
 
-const equiposAtencion = [
-  ...data.robots.map((robot) => ({
-    equipoId: robot.id,
-    estado: reporte?.robots[robot.id]?.estado,
-  })),
-  ...data.mixers.map((mixer) => ({
-    equipoId: mixer.id,
-    estado: reporte?.mixers[mixer.id]?.estado,
-  })),
-];
-
-const totalAtencion = equiposAtencion.filter(
-  (equipo) =>
-    equipo.estado === 'inoperativo' ||
-    equipo.estado === 'mantenimiento',
-).length;
-
-const totalInoperativos = equiposAtencion.filter(
-  (equipo) => equipo.estado === 'inoperativo',
-).length;
-
-const totalFallas = reporte?.fallas.length ?? 0;
-
-const totalDesechos =
-  reporte?.desechos
-    .filter((d) => d.tipo.toLowerCase().includes('desecho'))
-    .reduce((total, item) => total + item.cantidad, 0) ?? 0;
-
-const totalMorteros =
-  reporte?.desechos
-    .filter((d) => d.tipo.toLowerCase().includes('mortero'))
-    .reduce((total, item) => total + item.cantidad, 0) ?? 0;
-
-const totalCombustibleCompletos =
-  reporte
-    ? data.robots.filter(
-        (robot) =>
-          reporte.robots[robot.id]?.combustible?.inicio &&
-          reporte.robots[robot.id]?.combustible?.media &&
-          reporte.robots[robot.id]?.combustible?.final,
-      ).length
-    : 0;
-
 const totalAditivoRegistrado =
   reporte
     ? data.robots.filter(
         (robot) => reporte.robots[robot.id]?.aditivo !== null,
       ).length
     : 0;
-
-</div>
-      </main>
 
 {/* RESUMEN DE GUARDIA */}
 <section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
