@@ -6,6 +6,7 @@ import {
   Truck,
   ChevronDown,
   ChevronUp,
+  AlertTriangle,
 } from 'lucide-react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useOpsData, nombreSupervisor } from '../lib/ops-store';
@@ -446,6 +447,193 @@ const reporte =
     </div>
 
   </div>
+</section>
+
+{/* ATENCIÓN REQUERIDA */}
+<section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
+
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+      <AlertTriangle className="w-5 h-5 text-red-400" />
+    </div>
+
+    <div>
+      <h3 className="text-xl font-bold">
+        🚨 Atención Requerida
+      </h3>
+
+      <p className="text-sm text-slate-400">
+        Equipos que requieren atención durante esta guardia
+      </p>
+    </div>
+  </div>
+
+  {(() => {
+    const equiposAtencion = [
+      ...data.robots.map((robot) => ({
+        equipoId: robot.id,
+        codigo: robot.codigo,
+        detalle: reporte.robots[robot.id],
+      })),
+      ...data.mixers.map((mixer) => ({
+        equipoId: mixer.id,
+        codigo: mixer.codigo,
+        detalle: reporte.mixers[mixer.id],
+      })),
+    ].filter(
+      (equipo) =>
+        equipo.detalle?.estado === 'inoperativo' ||
+        equipo.detalle?.estado === 'mantenimiento',
+    );
+
+    if (equiposAtencion.length === 0) {
+      return (
+        <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-5 text-center">
+          <p className="text-green-400 font-semibold">
+            🟢 No hay equipos que requieran atención
+          </p>
+
+          <p className="text-sm text-slate-400 mt-1">
+            Todos los equipos se encuentran operativos o en Stand By.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+
+        {equiposAtencion.map((equipo) => {
+
+          const inoperativo =
+            equipo.detalle?.estado === 'inoperativo';
+
+          return (
+            <div
+              key={equipo.equipoId}
+              className={`rounded-xl border p-4 ${
+                inoperativo
+                  ? 'border-red-500/30 bg-red-500/10'
+                  : 'border-orange-500/30 bg-orange-500/10'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+
+                <div>
+                  <p className="font-bold text-white">
+                    {equipo.codigo}
+                  </p>
+
+                  <p className="text-sm text-slate-400 mt-1">
+                    {inoperativo
+                      ? 'Equipo inoperativo'
+                      : 'Equipo en mantenimiento'}
+                  </p>
+                </div>
+
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                    inoperativo
+                      ? 'bg-red-500/20 text-red-400'
+                      : 'bg-orange-500/20 text-orange-400'
+                  }`}
+                >
+                  {inoperativo
+                    ? 'INOPERATIVO'
+                    : 'MANTENIMIENTO'}
+                </span>
+
+              </div>
+            </div>
+          );
+        })}
+
+      </div>
+    );
+  })()}
+
+</section>
+
+
+{/* FALLAS DE LA GUARDIA */}
+<section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
+
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
+      <AlertTriangle className="w-5 h-5 text-orange-400" />
+    </div>
+
+    <div>
+      <h3 className="text-xl font-bold">
+        🔧 Fallas de la Guardia
+      </h3>
+
+      <p className="text-sm text-slate-400">
+        Incidencias registradas durante la guardia seleccionada
+      </p>
+    </div>
+  </div>
+
+  {reporte.fallas.length === 0 ? (
+    <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-5 text-center">
+      <p className="text-green-400 font-semibold">
+        🟢 Sin fallas registradas
+      </p>
+
+      <p className="text-sm text-slate-400 mt-1">
+        No se registraron fallas durante esta guardia.
+      </p>
+    </div>
+  ) : (
+    <div className="space-y-3">
+
+      {reporte.fallas
+        .slice()
+        .sort((a, b) => a.hora.localeCompare(b.hora))
+        .map((falla) => (
+
+          <div
+            key={falla.id}
+            className="rounded-xl bg-slate-900/70 border border-slate-700 p-4"
+          >
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+              <div>
+
+                <div className="flex items-center gap-3">
+                  <span className="font-bold">
+                    {falla.equipoId}
+                  </span>
+
+                  <span className="text-xs text-slate-500">
+                    {falla.hora}
+                  </span>
+                </div>
+
+                <p className="text-sm text-orange-400 font-medium mt-2">
+                  {falla.tipo}
+                </p>
+
+                <p className="text-sm text-slate-300 mt-1">
+                  {falla.descripcion}
+                </p>
+
+              </div>
+
+              <span className="text-xs text-slate-400">
+                Estado final: {falla.estadoFinal}
+              </span>
+
+            </div>
+
+          </div>
+
+        ))}
+
+    </div>
+  )}
+
 </section>
 
 </div>
