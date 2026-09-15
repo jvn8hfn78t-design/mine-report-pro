@@ -1,14 +1,45 @@
 import {
   ArrowLeft,
   BarChart3,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   FileText,
-  TrendingUp,
+  AlertTriangle,
+  Truck,
+  Bot,
 } from 'lucide-react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useOpsData, nombreSupervisor } from '../lib/ops-store';
 
 export function ResidenciaPage() {
   const navigate = useNavigate();
+  const data = useOpsData();
+
+  const reportes = data.reportes
+    .filter((r) => r.estado === 'finalizado')
+    .sort((a, b) => `${b.fecha}-${b.tipoGuardia}`.localeCompare(`${a.fecha}-${a.tipoGuardia}`));
+
+  const reporte = reportes[0];
+    if (!reporte) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-6">
+        <div className="text-center">
+          <p className="text-slate-400">
+            No hay reportes de guardia disponibles.
+          </p>
+
+          <button
+            onClick={() => navigate({ to: '/acceso' })}
+            className="mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
