@@ -980,13 +980,6 @@ const totalAditivoRegistrado =
 
 </section>
 
-const totalAditivoRegistrado =
-  reporte
-    ? data.robots.filter(
-        (robot) => reporte.robots[robot.id]?.aditivo !== null,
-      ).length
-    : 0;
-
 {/* RESUMEN DE GUARDIA */}
 <section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
 
@@ -1108,27 +1101,25 @@ const totalAditivoRegistrado =
 {/* VER REPORTE COMPLETO */}
 <div className="flex justify-end">
   <button
-  type="button"
-  onClick={() =>
-    navigate({
-      to: '/residencia/reporte',
-      search: {
-        fecha: fechaSeleccionada,
-        guardia: tipoGuardiaSeleccionado,
-      },
-    })
-  }
-  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 transition-colors"
->
+    type="button"
+    onClick={() =>
+      navigate({
+        to: '/residencia/reporte',
+        search: {
+          fecha: fechaSeleccionada,
+          guardia: tipoGuardiaSeleccionado,
+        },
+      })
+    }
+    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 transition-colors"
+  >
     <FileText className="w-5 h-5" />
     VER REPORTE COMPLETO
   </button>
 </div>
 
+        </div>
+      </main>
     </div>
   );
 }
-
-export const Route = createFileRoute('/residencia')({
-  component: ResidenciaPage,
-});
