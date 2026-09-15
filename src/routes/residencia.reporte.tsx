@@ -355,5 +355,4 @@ export const Route = createFileRoute('/residencia/reporte')({
     guardia: search.guardia === 'noche' ? 'noche' : 'dia',
   }),
   component: ResidenciaReportePage,
-});  component: ResidenciaReportePage,
 });
