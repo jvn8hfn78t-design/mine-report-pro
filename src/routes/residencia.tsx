@@ -4,8 +4,8 @@ import {
   BarChart3,
   Bot,
   Truck,
-  AlertTriangle,
-  Fuel,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useOpsData, nombreSupervisor } from '../lib/ops-store';
@@ -13,6 +13,8 @@ import { useOpsData, nombreSupervisor } from '../lib/ops-store';
 export function ResidenciaPage() {
   const navigate = useNavigate();
   const data = useOpsData();
+  const [robotsAbiertos, setRobotsAbiertos] = useState(false);
+const [mixersAbiertos, setMixersAbiertos] = useState(false);
 
   const reportes = data.reportes
     .filter((r) => r.estado === 'finalizado')
@@ -156,44 +158,113 @@ const reporte =
 
         <div className="space-y-6">
 
-  {/* ESTADO DE EQUIPOS */}
-  <section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
+  {/*{/* ESTADO DE EQUIPOS */}
+<section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
 
-    <div className="flex items-center gap-3 mb-6">
-      <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-        <BarChart3 className="w-5 h-5 text-blue-400" />
-      </div>
-
-      <div>
-        <h3 className="text-xl font-bold">
-          ⚙️ Estado de Equipos
-        </h3>
-
-        <p className="text-sm text-slate-400">
-          Estado registrado durante la guardia seleccionada
-        </p>
-      </div>
+  <div className="flex items-center gap-3 mb-6">
+    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+      <BarChart3 className="w-5 h-5 text-blue-400" />
     </div>
 
-    <div className="grid lg:grid-cols-2 gap-6">
+    <div>
+      <h3 className="text-xl font-bold">
+        ⚙️ Estado de Equipos
+      </h3>
 
-      {/* ROBOTS */}
-      <div className="bg-slate-900/70 rounded-xl p-5">
+      <p className="text-sm text-slate-400">
+        Estado registrado durante la guardia seleccionada
+      </p>
+    </div>
+  </div>
 
-        <div className="flex items-center gap-2 mb-4">
-          <Bot className="w-5 h-5 text-blue-400" />
+  <div className="grid lg:grid-cols-2 gap-6">
 
-          <h4 className="font-semibold">
-            ROBOTS
-          </h4>
+    {/* ROBOTS */}
+    <div className="bg-slate-900/70 rounded-xl overflow-hidden">
+
+      <button
+        type="button"
+        onClick={() => setRobotsAbiertos(!robotsAbiertos)}
+        className="w-full p-5 text-left"
+      >
+
+        <div className="flex items-center justify-between mb-5">
+
+          <div className="flex items-center gap-2">
+            <Bot className="w-5 h-5 text-blue-400" />
+            <h4 className="font-semibold">ROBOTS</h4>
+          </div>
+
+          {robotsAbiertos ? (
+            <ChevronUp className="w-5 h-5 text-slate-400" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-slate-400" />
+          )}
+
         </div>
 
-        <div className="space-y-2">
+        <div className="grid grid-cols-4 gap-2">
+
+          {[
+            {
+              estado: 'operativo',
+              color: 'text-green-400',
+              fondo: 'bg-green-500/10',
+              label: 'Operativos',
+            },
+            {
+              estado: 'inoperativo',
+              color: 'text-red-400',
+              fondo: 'bg-red-500/10',
+              label: 'Inoperativos',
+            },
+            {
+              estado: 'mantenimiento',
+              color: 'text-orange-400',
+              fondo: 'bg-orange-500/10',
+              label: 'Mantenimiento',
+            },
+            {
+              estado: 'standby',
+              color: 'text-blue-400',
+              fondo: 'bg-blue-500/10',
+              label: 'Stand By',
+            },
+          ].map((item) => {
+
+            const total = data.robots.filter(
+              (robot) =>
+                (reporte.robots[robot.id]?.estado ?? 'operativo') ===
+                item.estado,
+            ).length;
+
+            return (
+              <div
+                key={item.estado}
+                className={`rounded-lg ${item.fondo} p-3 text-center`}
+              >
+                <div className={`text-2xl font-bold ${item.color}`}>
+                  {total}
+                </div>
+
+                <div className="text-[10px] text-slate-400 mt-1 leading-tight">
+                  {item.label}
+                </div>
+              </div>
+            );
+          })}
+
+        </div>
+
+      </button>
+
+      {robotsAbiertos && (
+        <div className="border-t border-slate-700 p-4 space-y-2">
 
           {data.robots.map((robot) => {
-            const detalle = reporte.robots[robot.id];
 
-            const estado = detalle?.estado ?? 'operativo';
+            const estado =
+              reporte.robots[robot.id]?.estado ?? 'operativo';
 
             const estadoConfig = {
               operativo: {
@@ -224,36 +295,109 @@ const reporte =
                 </span>
 
                 <span className="flex items-center gap-2 text-sm text-slate-300">
+
                   <span
                     className={`w-2.5 h-2.5 rounded-full ${estadoConfig.color}`}
                   />
 
                   {estadoConfig.texto}
+
                 </span>
               </div>
             );
           })}
 
         </div>
-      </div>
+      )}
 
-      {/* MIXERS */}
-      <div className="bg-slate-900/70 rounded-xl p-5">
+    </div>
 
-        <div className="flex items-center gap-2 mb-4">
-          <Truck className="w-5 h-5 text-blue-400" />
+    {/* MIXERS */}
+    <div className="bg-slate-900/70 rounded-xl overflow-hidden">
 
-          <h4 className="font-semibold">
-            MIXERS
-          </h4>
+      <button
+        type="button"
+        onClick={() => setMixersAbiertos(!mixersAbiertos)}
+        className="w-full p-5 text-left"
+      >
+
+        <div className="flex items-center justify-between mb-5">
+
+          <div className="flex items-center gap-2">
+            <Truck className="w-5 h-5 text-blue-400" />
+            <h4 className="font-semibold">MIXERS</h4>
+          </div>
+
+          {mixersAbiertos ? (
+            <ChevronUp className="w-5 h-5 text-slate-400" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-slate-400" />
+          )}
+
         </div>
 
-        <div className="space-y-2">
+        <div className="grid grid-cols-4 gap-2">
+
+          {[
+            {
+              estado: 'operativo',
+              color: 'text-green-400',
+              fondo: 'bg-green-500/10',
+              label: 'Operativos',
+            },
+            {
+              estado: 'inoperativo',
+              color: 'text-red-400',
+              fondo: 'bg-red-500/10',
+              label: 'Inoperativos',
+            },
+            {
+              estado: 'mantenimiento',
+              color: 'text-orange-400',
+              fondo: 'bg-orange-500/10',
+              label: 'Mantenimiento',
+            },
+            {
+              estado: 'standby',
+              color: 'text-blue-400',
+              fondo: 'bg-blue-500/10',
+              label: 'Stand By',
+            },
+          ].map((item) => {
+
+            const total = data.mixers.filter(
+              (mixer) =>
+                (reporte.mixers[mixer.id]?.estado ?? 'operativo') ===
+                item.estado,
+            ).length;
+
+            return (
+              <div
+                key={item.estado}
+                className={`rounded-lg ${item.fondo} p-3 text-center`}
+              >
+                <div className={`text-2xl font-bold ${item.color}`}>
+                  {total}
+                </div>
+
+                <div className="text-[10px] text-slate-400 mt-1 leading-tight">
+                  {item.label}
+                </div>
+              </div>
+            );
+          })}
+
+        </div>
+
+      </button>
+
+      {mixersAbiertos && (
+        <div className="border-t border-slate-700 p-4 space-y-2">
 
           {data.mixers.map((mixer) => {
-            const detalle = reporte.mixers[mixer.id];
 
-            const estado = detalle?.estado ?? 'operativo';
+            const estado =
+              reporte.mixers[mixer.id]?.estado ?? 'operativo';
 
             const estadoConfig = {
               operativo: {
@@ -284,21 +428,25 @@ const reporte =
                 </span>
 
                 <span className="flex items-center gap-2 text-sm text-slate-300">
+
                   <span
                     className={`w-2.5 h-2.5 rounded-full ${estadoConfig.color}`}
                   />
 
                   {estadoConfig.texto}
+
                 </span>
               </div>
             );
           })}
 
         </div>
-      </div>
+      )}
 
     </div>
-  </section>
+
+  </div>
+</section>
 
 </div>
       </main>
