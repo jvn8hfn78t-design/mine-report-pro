@@ -87,13 +87,13 @@ export function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center space-y-8">
           <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-orange-400 via-red-500 to-orange-400 bg-clip-text text-transparent leading-tight">
-            Reportes de Operaciones
+            Mine Report Pro
             <br />
-            Minería & Construcción
+            Batch's
           </h1>
 
           <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Plataforma offline-first diseñada para operaciones pesadas en terreno.
+            Plataforma offline-first diseñada para operaciones.
             <br />
             <span className="text-orange-400 font-semibold">Cero pérdida de datos. Generación instantánea de PDF.</span>
           </p>
