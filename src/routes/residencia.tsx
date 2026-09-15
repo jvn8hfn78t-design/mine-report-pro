@@ -2,8 +2,6 @@ import { useState } from 'react';
 import {
   ArrowLeft,
   BarChart3,
-  ChevronLeft,
-  ChevronRight,
   ClipboardList,
   FileText,
   TrendingUp,
