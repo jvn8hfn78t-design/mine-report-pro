@@ -91,7 +91,7 @@ const reporte =
 
     <div>
       <label className="block text-xs text-slate-400 mb-2">
-        📅 FECHA DE GUARDIA
+        FECHA DE GUARDIA
       </label>
 
       <input
@@ -118,7 +118,7 @@ const reporte =
 
     <div>
       <label className="block text-xs text-slate-400 mb-2">
-        🕐 GUARDIA
+        GUARDIA
       </label>
 
       <select
@@ -130,8 +130,8 @@ const reporte =
         }
         className="w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 text-white"
       >
-        <option value="dia">☀ DÍA</option>
-        <option value="noche">🌙 NOCHE</option>
+        <option value="dia">DÍA</option>
+        <option value="noche">NOCHE</option>
       </select>
     </div>
 
@@ -168,7 +168,7 @@ const reporte =
 
     <div>
       <h3 className="text-xl font-bold">
-        ⚙️ Estado de Equipos
+        Estado de Equipos
       </h3>
 
       <p className="text-sm text-slate-400">
