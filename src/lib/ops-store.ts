@@ -164,7 +164,7 @@ carguios: [
       desechos: [
         {
           id: `d1-${dias}`,
-          tipo: "Rebote de shotcrete",
+          tipo: "Desecho",
           hora: "14:00",
           equipoId: "rb-074",
           cantidad: 0.8,
