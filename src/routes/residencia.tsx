@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   ArrowLeft,
   BarChart3,
@@ -21,7 +22,9 @@ export function ResidenciaPage() {
     .filter((r) => r.estado === 'finalizado')
     .sort((a, b) => `${b.fecha}-${b.tipoGuardia}`.localeCompare(`${a.fecha}-${a.tipoGuardia}`));
 
-  const reporte = reportes[0];
+  const [reporteIndex, setReporteIndex] = useState(0);
+
+const reporte = reportes[reporteIndex];
     if (!reporte) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center p-6">
@@ -73,6 +76,45 @@ export function ResidenciaPage() {
           <h2 className="text-4xl font-bold mb-3">
             Dashboard de Operaciones
           </h2>
+
+          <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-800/70 p-4">
+  <div className="flex items-center justify-between gap-3">
+    <button
+      onClick={() =>
+        setReporteIndex((i) => Math.min(i + 1, reportes.length - 1))
+      }
+      disabled={reporteIndex >= reportes.length - 1}
+      className="p-2 rounded-lg border border-slate-600 disabled:opacity-30"
+    >
+      <ChevronLeft size={20} />
+    </button>
+
+    <div className="flex-1 text-center">
+      <p className="text-xs text-slate-400 mb-1">
+        GUARDIA SELECCIONADA
+      </p>
+
+      <p className="font-semibold">
+        📅 {reporte.fecha} ·{' '}
+        {reporte.tipoGuardia === 'dia' ? '☀ DÍA' : '🌙 NOCHE'}
+      </p>
+
+      <p className="text-sm text-slate-400 mt-1">
+        {nombreSupervisor(data, reporte.supervisorId)}
+      </p>
+    </div>
+
+    <button
+      onClick={() =>
+        setReporteIndex((i) => Math.max(i - 1, 0))
+      }
+      disabled={reporteIndex <= 0}
+      className="p-2 rounded-lg border border-slate-600 disabled:opacity-30"
+    >
+      <ChevronRight size={20} />
+    </button>
+  </div>
+</div>
 
           <p className="text-slate-400 max-w-2xl">
             Consulta el estado general de las operaciones, revisa reportes
