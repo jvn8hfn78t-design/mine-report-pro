@@ -393,7 +393,6 @@ function NuevoReporte() {
   <Label className="text-xs">Labor</Label>
   <Input
     value={l.labor}
-    placeholder="Ej. Shotcrete"
     onChange={(e) =>
       up({
         lanzamientos: rep.lanzamientos.map((x) =>
@@ -526,7 +525,6 @@ function NuevoReporte() {
   <Label className="text-xs">Labor</Label>
   <Input
     value={c.labor}
-    placeholder="Ej. Shotcrete"
     onChange={(e) =>
       up({
         carguios: rep.carguios.map((x) =>
