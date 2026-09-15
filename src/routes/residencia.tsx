@@ -2,14 +2,11 @@ import { useState } from 'react';
 import {
   ArrowLeft,
   BarChart3,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
   FileText,
-  AlertTriangle,
-  Truck,
-  Bot,
+  TrendingUp,
 } from 'lucide-react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useOpsData, nombreSupervisor } from '../lib/ops-store';
