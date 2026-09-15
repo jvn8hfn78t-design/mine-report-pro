@@ -2,9 +2,10 @@ import { useState } from 'react';
 import {
   ArrowLeft,
   BarChart3,
-  ClipboardList,
-  FileText,
-  TrendingUp,
+  Bot,
+  Truck,
+  AlertTriangle,
+  Fuel,
 } from 'lucide-react';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useOpsData, nombreSupervisor } from '../lib/ops-store';
@@ -153,101 +154,153 @@ const reporte =
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-            <ClipboardList className="w-8 h-8 text-blue-400 mb-4" />
+        <div className="space-y-6">
 
-            <p className="text-slate-400 text-sm">
-              Reportes de Guardia
-            </p>
+  {/* ESTADO DE EQUIPOS */}
+  <section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-6">
 
-            <p className="text-3xl font-bold mt-2">—</p>
+    <div className="flex items-center gap-3 mb-6">
+      <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+        <BarChart3 className="w-5 h-5 text-blue-400" />
+      </div>
 
-            <p className="text-xs text-slate-500 mt-2">
-              Datos disponibles próximamente
-            </p>
-          </div>
+      <div>
+        <h3 className="text-xl font-bold">
+          ⚙️ Estado de Equipos
+        </h3>
 
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-            <TrendingUp className="w-8 h-8 text-green-400 mb-4" />
+        <p className="text-sm text-slate-400">
+          Estado registrado durante la guardia seleccionada
+        </p>
+      </div>
+    </div>
 
-            <p className="text-slate-400 text-sm">
-              Producción
-            </p>
+    <div className="grid lg:grid-cols-2 gap-6">
 
-            <p className="text-3xl font-bold mt-2">—</p>
+      {/* ROBOTS */}
+      <div className="bg-slate-900/70 rounded-xl p-5">
 
-            <p className="text-xs text-slate-500 mt-2">
-              Indicador operacional
-            </p>
-          </div>
+        <div className="flex items-center gap-2 mb-4">
+          <Bot className="w-5 h-5 text-blue-400" />
 
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-            <FileText className="w-8 h-8 text-orange-400 mb-4" />
-
-            <p className="text-slate-400 text-sm">
-              Reportes Pendientes
-            </p>
-
-            <p className="text-3xl font-bold mt-2">—</p>
-
-            <p className="text-xs text-slate-500 mt-2">
-              Por revisar
-            </p>
-          </div>
-
-          <div className="bg-slate-800 border border-slate-700 rounded-xl p-6">
-            <BarChart3 className="w-8 h-8 text-purple-400 mb-4" />
-
-            <p className="text-slate-400 text-sm">
-              Indicadores
-            </p>
-
-            <p className="text-3xl font-bold mt-2">—</p>
-
-            <p className="text-xs text-slate-500 mt-2">
-              Estadísticas generales
-            </p>
-          </div>
+          <h4 className="font-semibold">
+            ROBOTS
+          </h4>
         </div>
 
-        <div className="bg-slate-800/70 border border-slate-700 rounded-xl p-8">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-blue-400" />
-            </div>
+        <div className="space-y-2">
 
-            <div>
-              <h3 className="text-xl font-bold">
-                Dashboard en construcción
-              </h3>
+          {data.robots.map((robot) => {
+            const detalle = reporte.robots[robot.id];
 
-              <p className="text-slate-400 text-sm">
-                Aquí conectaremos las estadísticas reales de los reportes.
-              </p>
-            </div>
-          </div>
+            const estado = detalle?.estado ?? 'operativo';
 
-          <div className="grid md:grid-cols-3 gap-4 mt-6">
-            <div className="bg-slate-900 rounded-lg p-4">
-              <p className="text-sm text-slate-400">
-                Producción por guardia
-              </p>
-            </div>
+            const estadoConfig = {
+              operativo: {
+                color: 'bg-green-500',
+                texto: 'Operativo',
+              },
+              mantenimiento: {
+                color: 'bg-orange-500',
+                texto: 'Mantenimiento',
+              },
+              standby: {
+                color: 'bg-blue-500',
+                texto: 'Stand By',
+              },
+              inoperativo: {
+                color: 'bg-red-500',
+                texto: 'Inoperativo',
+              },
+            }[estado];
 
-            <div className="bg-slate-900 rounded-lg p-4">
-              <p className="text-sm text-slate-400">
-                Fallas de equipos
-              </p>
-            </div>
+            return (
+              <div
+                key={robot.id}
+                className="flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3"
+              >
+                <span className="font-medium">
+                  {robot.codigo}
+                </span>
 
-            <div className="bg-slate-900 rounded-lg p-4">
-              <p className="text-sm text-slate-400">
-                Consumo de combustible
-              </p>
-            </div>
-          </div>
+                <span className="flex items-center gap-2 text-sm text-slate-300">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${estadoConfig.color}`}
+                  />
+
+                  {estadoConfig.texto}
+                </span>
+              </div>
+            );
+          })}
+
         </div>
+      </div>
+
+      {/* MIXERS */}
+      <div className="bg-slate-900/70 rounded-xl p-5">
+
+        <div className="flex items-center gap-2 mb-4">
+          <Truck className="w-5 h-5 text-blue-400" />
+
+          <h4 className="font-semibold">
+            MIXERS
+          </h4>
+        </div>
+
+        <div className="space-y-2">
+
+          {data.mixers.map((mixer) => {
+            const detalle = reporte.mixers[mixer.id];
+
+            const estado = detalle?.estado ?? 'operativo';
+
+            const estadoConfig = {
+              operativo: {
+                color: 'bg-green-500',
+                texto: 'Operativo',
+              },
+              mantenimiento: {
+                color: 'bg-orange-500',
+                texto: 'Mantenimiento',
+              },
+              standby: {
+                color: 'bg-blue-500',
+                texto: 'Stand By',
+              },
+              inoperativo: {
+                color: 'bg-red-500',
+                texto: 'Inoperativo',
+              },
+            }[estado];
+
+            return (
+              <div
+                key={mixer.id}
+                className="flex items-center justify-between rounded-lg bg-slate-800 px-4 py-3"
+              >
+                <span className="font-medium">
+                  {mixer.codigo}
+                </span>
+
+                <span className="flex items-center gap-2 text-sm text-slate-300">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${estadoConfig.color}`}
+                  />
+
+                  {estadoConfig.texto}
+                </span>
+              </div>
+            );
+          })}
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
       </main>
     </div>
   );
