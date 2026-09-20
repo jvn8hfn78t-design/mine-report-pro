@@ -203,13 +203,39 @@ function isBrowser() {
 export function getData(): OpsData {
   if (cache) return cache;
   if (!isBrowser()) return defaults();
+
   try {
     const raw = window.localStorage.getItem(KEY);
-    cache = raw ? { ...defaults(), ...(JSON.parse(raw) as OpsData) } : defaults();
+
+    if (!raw) {
+      cache = defaults();
+      return cache;
+    }
+
+    const guardado = JSON.parse(raw) as Partial<OpsData>;
+    const base = defaults();
+
+    const reportesGuardados = Array.isArray(guardado.reportes)
+      ? guardado.reportes
+      : [];
+
+    const tieneReportesFinalizados = reportesGuardados.some(
+      (r) => r.estado === "finalizado",
+    );
+
+    cache = {
+      ...base,
+      ...guardado,
+      reportes: tieneReportesFinalizados
+        ? reportesGuardados
+        : base.reportes,
+    };
+
+    return cache;
   } catch {
     cache = defaults();
+    return cache;
   }
-  return cache;
 }
 
 export function setData(updater: (d: OpsData) => OpsData) {
